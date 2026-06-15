@@ -1,0 +1,56 @@
+<!doctype html>
+<!-- Document type: tells the browser this is an HTML5 document -->
+<html lang="en">
+  <head>
+    <!-- Character encoding for the document -->
+    <meta charset="utf-8" />
+    <!-- Ensure responsive layout on mobile devices -->
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <!-- Page title shown in browser tabs and when bookmarking -->
+    <title>FernWay - Map App Prototype</title>
+    <!-- Link to the PWA manifest (defines how the app is installed) -->
+    <link rel="manifest" href="/manifest.json" />
+    <!-- Link to the app stylesheet -->
+    <link rel="stylesheet" href="/styles.css" />
+    <!-- Main application JavaScript (deferred until parsing completes) -->
+    <script src="/app.js" defer></script>
+    <!-- Google Maps JS: replace YOUR_API_KEY with your API key; callback=initMap -->
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&v=weekly">
+    </script>
+  </head>
+  <body>
+    <!-- Loading overlay: covers screen while the app initializes -->
+    <div id="loadingOverlay">
+      <!-- Looping MP4 shown during loading; muted so autoplay works on many browsers -->
+      <video id="loadingVideo" autoplay muted loop playsinline>
+        <!-- Source for the loading video; place your file at /assets/video.mp4 -->
+        <source src="/assets/video.mp4" type="video/mp4">
+        <!-- Fallback text if video tag isn't supported -->
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Map container: Google Maps will render into this element -->
+    <div id="map"></div>
+
+    <!-- Main menu overlay sits above the map; visually semi-opaque via CSS -->
+    <div id="menuOverlay">
+      <div class="menuContent">
+        <!-- App title inside the menu -->
+        <h1>Welcome to FernWay</h1>
+        <!-- Short description / instruction -->
+        <p>Main menu — 50% opaque over the map.</p>
+        <!-- Button to toggle a sample overlay (wired in app.js) -->
+        <button id="toggleOverlayBtn">Toggle Sample Overlay</button>
+        <!-- Button to close the main menu (wired in app.js) -->
+        <button id="closeMenuBtn">Close Menu</button>
+      </div>
+    </div>
+
+    <!-- If JavaScript is disabled, show a full-page notice -->
+    <noscript>
+      <div class="noscript">JavaScript is required to run this app.</div>
+    </noscript>
+  </body>
+</html>

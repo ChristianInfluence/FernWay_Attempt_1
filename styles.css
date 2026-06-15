@@ -1,0 +1,63 @@
+/* Layout: make the html/body and the map fill the full viewport */
+html, body, #map {
+	height: 100%; /* allow the map to expand to full height */
+	margin: 0; /* remove default browser margins */
+	padding: 0; /* remove default browser padding */
+}
+
+/* Position the map element fixed to cover the viewport */
+#map {
+	position: fixed;
+	inset: 0; /* shorthand for top/right/bottom/left:0 */
+}
+
+/* Loading overlay styles: covers screen while app initializes */
+#loadingOverlay{
+	position: fixed; /* sit above the map */
+	inset: 0; /* fill the viewport */
+	display: flex; /* center the video */
+	align-items: center;
+	justify-content: center;
+	background: #000; /* fallback background while video loads */
+}
+
+#loadingVideo{
+	width: 100%; /* fill overlay width */
+	height: 100%; /* fill overlay height */
+	object-fit: cover; /* crop/scale the video to cover without distortion */
+}
+
+/* Main menu overlay: sits above the map and provides the app menu */
+#menuOverlay{
+	position: fixed; /* overlay the entire viewport */
+	top: 0; left: 0; right: 0; bottom: 0;
+	display: flex; /* layout the inner content */
+	align-items: flex-start; /* place menu near top */
+	justify-content: center; /* center horizontally */
+	pointer-events: auto; /* allow button interactions */
+}
+
+.menuContent{
+	margin: 20px; /* spacing from viewport edges */
+	padding: 20px; /* spacing inside the menu box */
+	border-radius: 8px; /* rounded corners */
+	background: rgba(255,255,255,0.5); /* 50% opaque background */
+	backdrop-filter: blur(6px); /* subtle blur of content behind menu */
+	width: min(720px,95%); /* responsive max width */
+}
+
+/* Fallback full-screen notice when JS is disabled */
+.noscript{
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff;
+	color: #000;
+}
+
+/* Responsive tweak: slightly smaller padding on small screens */
+@media (max-width: 600px) {
+	.menuContent { width: 95%; padding: 16px }
+}
