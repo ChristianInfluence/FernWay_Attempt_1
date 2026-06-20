@@ -5,9 +5,9 @@
   let locationWatchId = null;
   let latestUserPosition = null;
   let hasCenteredOnUser = false;
-  const loadingStartedAt = Date.now();
-  const minimumLoadingTime = 1600;
-  let loadingHideTimer = null;
+  let appReady = false;
+  let videoNearEnd = false;
+  let loadingFadeStarted = false;
 
   function initializeMap(){
     map = new maplibregl.Map({
@@ -63,20 +63,24 @@
   }
 
   function hideLoading(){
+    appReady = true;
+    finishLoadingWhenReady();
+  }
+
+  function markVideoNearEnd(){
+    videoNearEnd = true;
+    finishLoadingWhenReady();
+  }
+
+  function finishLoadingWhenReady(){
     const loading = document.getElementById('loadingOverlay');
-    if(!loading || loading.classList.contains('isHidden') || loadingHideTimer) return;
+    if(!loading || !appReady || !videoNearEnd || loadingFadeStarted) return;
 
-    const remainingTime = Math.max(
-      0,
-      minimumLoadingTime - (Date.now() - loadingStartedAt)
-    );
-
-    loadingHideTimer = window.setTimeout(() => {
-      loading.classList.add('isHidden');
-      window.setTimeout(() => {
-        loading.style.display = 'none';
-      }, 450);
-    }, remainingTime);
+    loadingFadeStarted = true;
+    loading.classList.add('isHidden');
+    window.setTimeout(() => {
+      loading.style.display = 'none';
+    }, 800);
   }
 
   function showMenu(){
@@ -241,7 +245,30 @@
     // Ensure video plays (some browsers require user interaction unless muted)
     const vid = document.getElementById('loadingVideo');
     if(vid){
-      vid.play().catch(()=>{/* ignore autoplay block; video is muted so should play */});
+      vid.playbackRate = 1.35;
+
+      const checkVideoProgress = () => {
+        if(
+          Number.isFinite(vid.duration)
+          && vid.duration > 0
+          && vid.currentTime >= Math.max(0, vid.duration - 0.9)
+        ){
+          markVideoNearEnd();
+        }
+      };
+
+      vid.addEventListener('loadedmetadata', checkVideoProgress);
+      vid.addEventListener('timeupdate', checkVideoProgress);
+      vid.addEventListener('ended', markVideoNearEnd);
+      vid.addEventListener('error', markVideoNearEnd);
+      vid.play().catch(()=>{
+        window.setTimeout(markVideoNearEnd, 2200);
+      });
+
+      // Safety fallback for browsers that do not report video progress reliably.
+      window.setTimeout(markVideoNearEnd, 5000);
+    } else {
+      markVideoNearEnd();
     }
 
     initializeMap();
