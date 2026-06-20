@@ -306,8 +306,10 @@
 
   function closeMenuForMap(){
     const menu = document.getElementById('menuOverlay');
+    const radialMenu = menu?.querySelector('.radialMenu');
     const mainSettingsBtn = document.getElementById('mainSettingsBtn');
 
+    if(radialMenu) radialMenu.classList.remove('playerMenuOpen');
     if(mainSettingsBtn){
       document.body.appendChild(mainSettingsBtn);
       mainSettingsBtn.classList.add('isDocked');
@@ -330,6 +332,7 @@
     if(!menu || !radialMenu || !mainSettingsBtn) return;
 
     radialMenu.appendChild(mainSettingsBtn);
+    radialMenu.classList.remove('playerMenuOpen');
     mainSettingsBtn.classList.remove('isDocked', 'isActive');
     mainSettingsBtn.setAttribute('aria-label', 'Player and main settings');
     setRadialMessage('Choose your path');
@@ -341,6 +344,29 @@
   function setRadialMessage(message){
     const radialMessage = document.getElementById('radialMessage');
     if(radialMessage) radialMessage.textContent = message;
+  }
+
+  function openPlayerQuickMenu(){
+    const radialMenu = document.querySelector('.radialMenu');
+    const mainSettingsBtn = document.getElementById('mainSettingsBtn');
+    if(!radialMenu || !mainSettingsBtn) return;
+
+    mainSettingsBtn.classList.add('isActive');
+    radialMenu.classList.add('playerMenuOpen');
+    setPlayerMenuStatus('Player menu');
+  }
+
+  function closePlayerQuickMenu(){
+    const radialMenu = document.querySelector('.radialMenu');
+    const mainSettingsBtn = document.getElementById('mainSettingsBtn');
+    if(radialMenu) radialMenu.classList.remove('playerMenuOpen');
+    if(mainSettingsBtn) mainSettingsBtn.classList.remove('isActive');
+    setRadialMessage('Choose your path');
+  }
+
+  function setPlayerMenuStatus(message){
+    const status = document.getElementById('playerMenuStatus');
+    if(status) status.textContent = message;
   }
 
   function buildAchievementRail(){
@@ -508,6 +534,9 @@
     const mapModeBtn = document.getElementById('mapModeBtn');
     const storyModeBtn = document.getElementById('storyModeBtn');
     const mainSettingsBtn = document.getElementById('mainSettingsBtn');
+    const playerExitBtn = document.getElementById('playerExitBtn');
+    const playerSettingsBtn = document.getElementById('playerSettingsBtn');
+    const playerActionButtons = document.querySelectorAll('.playerActionButton');
     const utilityButtons = document.querySelectorAll('.utilityButton');
     const loading = document.getElementById('loadingOverlay');
     const closeAchievementCard = document.getElementById('closeAchievementCard');
@@ -524,12 +553,23 @@
         return;
       }
 
-      mainSettingsBtn.classList.toggle('isActive');
-      setRadialMessage(
-        mainSettingsBtn.classList.contains('isActive')
-          ? 'Player and main settings selected'
-          : 'Choose your path'
-      );
+      if(document.querySelector('.radialMenu')?.classList.contains('playerMenuOpen')){
+        closePlayerQuickMenu();
+        return;
+      }
+
+      openPlayerQuickMenu();
+    });
+    if(playerExitBtn) playerExitBtn.addEventListener('click', closePlayerQuickMenu);
+    if(playerSettingsBtn){
+      playerSettingsBtn.addEventListener('click', ()=>{
+        setPlayerMenuStatus('Settings · preferences and self-care options to follow');
+      });
+    }
+    playerActionButtons.forEach((button)=>{
+      button.addEventListener('click', ()=>{
+        setPlayerMenuStatus(`${button.dataset.playerAction} · panel to follow`);
+      });
     });
     utilityButtons.forEach((button)=>{
       button.addEventListener('click', ()=>{

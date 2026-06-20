@@ -97,6 +97,65 @@
           <span class="radialLabel">Player</span>
         </button>
 
+        <div id="playerQuickMenu" class="playerQuickMenu" aria-label="Player quick menu">
+          <!-- IMAGE REFERENCE: assets/ui/player-exit.png — JPEG / PNG TO FOLLOW -->
+          <button id="playerExitBtn" class="playerMiniButton playerExitButton" type="button" aria-label="Exit player menu">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <path d="M13 13l22 22M35 13L13 35"></path>
+            </svg>
+            <span>Exit</span>
+          </button>
+
+          <!-- IMAGE REFERENCE: assets/ui/player-settings.png — JPEG / PNG TO FOLLOW -->
+          <button id="playerSettingsBtn" class="playerMiniButton playerSettingsButton" type="button" aria-label="Player settings">
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <circle cx="24" cy="24" r="7"></circle>
+              <path d="M24 6v6M24 36v6M6 24h6M36 24h6M11 11l5 5M32 32l5 5M37 11l-5 5M16 32l-5 5"></path>
+              <circle cx="24" cy="24" r="15"></circle>
+            </svg>
+            <span>Settings</span>
+          </button>
+
+          <div class="playerActionTrack" aria-label="Player actions">
+            <!-- IMAGE REFERENCE: assets/ui/player-inventory.png — JPEG / PNG TO FOLLOW -->
+            <button class="playerActionButton inventoryAction" type="button" data-player-action="Inventory" aria-label="Inventory">
+              <svg viewBox="0 0 56 56" aria-hidden="true">
+                <path d="M17 18h22l5 30H12l5-30z"></path>
+                <path d="M21 18c0-8 14-8 14 0M19 29h18M28 29v13"></path>
+              </svg>
+              <span>Inventory</span>
+            </button>
+
+            <!-- IMAGE REFERENCE: assets/ui/player-messages.png — JPEG / PNG TO FOLLOW -->
+            <button class="playerActionButton messagesAction" type="button" data-player-action="Messages" aria-label="Messages">
+              <svg viewBox="0 0 56 56" aria-hidden="true">
+                <path d="M9 12h38v29H25L14 49v-8H9V12z"></path>
+                <path d="M17 23h22M17 31h15"></path>
+              </svg>
+              <span>Messages</span>
+            </button>
+
+            <!-- IMAGE REFERENCE: assets/ui/player-self-care.png — JPEG / PNG TO FOLLOW -->
+            <button class="playerActionButton selfCareAction" type="button" data-player-action="Self-Care" aria-label="Self-care">
+              <svg viewBox="0 0 56 56" aria-hidden="true">
+                <circle cx="28" cy="28" r="21"></circle>
+                <path d="M28 17v22M17 28h22"></path>
+              </svg>
+              <span>Self-Care</span>
+            </button>
+
+            <!-- IMAGE REFERENCE: assets/ui/player-rank-clan.png — JPEG / PNG TO FOLLOW -->
+            <button class="playerActionButton rankClanAction" type="button" data-player-action="Rank / Clan" aria-label="Rank and clan">
+              <svg viewBox="0 0 56 56" aria-hidden="true">
+                <path d="M28 7l8 8 11 2-5 10 1 12-11-2-10 7-5-11-9-7 8-9 3-10z"></path>
+                <path d="M22 24h12M28 18v18"></path>
+              </svg>
+              <span>Rank / Clan</span>
+            </button>
+          </div>
+          <p id="playerMenuStatus" class="playerMenuStatus" aria-live="polite">Player menu</p>
+        </div>
+
         <!-- IMAGE REFERENCE: assets/ui/map-compass.png — JPEG / PNG TO FOLLOW -->
         <button
           id="mapModeBtn"

@@ -630,6 +630,199 @@ button, a { font: inherit; }
 		0 0 42px rgba(116, 214, 160, 0.24);
 }
 
+.playerQuickMenu {
+	position: fixed;
+	inset: 0;
+	z-index: 7;
+	visibility: hidden;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.radialMenu.playerMenuOpen .playerQuickMenu {
+	visibility: visible;
+	opacity: 1;
+}
+
+.radialMenu.playerMenuOpen {
+	transform: none;
+}
+
+.radialMenu.playerMenuOpen > :not(.primaryRadialButton):not(.playerQuickMenu) {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+.radialMenu.playerMenuOpen .primaryRadialButton {
+	position: fixed;
+	top: 96px;
+	right: 54px;
+	left: auto;
+	z-index: 12;
+	width: 184px;
+	height: 184px;
+	margin: 0;
+	transform: none;
+	animation: playerButtonExpand 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.radialMenu.playerMenuOpen .primaryRadialButton:hover,
+.radialMenu.playerMenuOpen .primaryRadialButton:focus-visible {
+	transform: scale(1.02);
+}
+
+.radialMenu.playerMenuOpen .primaryRadialButton svg {
+	width: 142px;
+	height: 142px;
+}
+
+.radialMenu.playerMenuOpen .primaryRadialButton .radialLabel {
+	display: none;
+}
+
+.playerMiniButton,
+.playerActionButton {
+	border: 1px solid rgba(213, 221, 255, 0.34);
+	background:
+		radial-gradient(circle at 34% 28%, rgba(76, 84, 144, 0.96), rgba(15, 18, 52, 0.98) 72%);
+	color: #edf0ff;
+	box-shadow:
+		0 14px 34px rgba(5, 6, 25, 0.48),
+		inset 0 1px rgba(255, 255, 255, 0.16);
+	cursor: pointer;
+	transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.playerMiniButton:hover,
+.playerMiniButton:focus-visible,
+.playerActionButton:hover,
+.playerActionButton:focus-visible {
+	border-color: rgba(143, 232, 188, 0.75);
+	box-shadow:
+		0 16px 38px rgba(5, 6, 25, 0.56),
+		0 0 0 5px rgba(116, 214, 160, 0.1);
+	outline: none;
+	transform: translateY(-2px);
+}
+
+.playerMiniButton {
+	position: fixed;
+	z-index: 14;
+	display: grid;
+	width: 58px;
+	height: 58px;
+	place-items: center;
+	padding: 0;
+	border-radius: 50%;
+	pointer-events: auto;
+}
+
+.playerMiniButton svg {
+	width: 34px;
+	height: 34px;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 3;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.playerMiniButton span,
+.playerActionButton span {
+	position: absolute;
+	top: calc(100% + 7px);
+	left: 50%;
+	color: rgba(235, 239, 255, 0.78);
+	font-size: 8px;
+	font-weight: 900;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	transform: translateX(-50%);
+}
+
+.playerExitButton {
+	top: 245px;
+	right: 202px;
+	animation: playerMiniIn 360ms 100ms both cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.playerSettingsButton {
+	top: 270px;
+	right: 144px;
+	animation: playerMiniIn 360ms 150ms both cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.playerSettingsButton svg { stroke-width: 2.2; }
+
+.playerActionTrack {
+	position: fixed;
+	top: 143px;
+	right: 257px;
+	z-index: 10;
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+	gap: 14px;
+	padding: 10px 13px;
+	border: 1px solid rgba(211, 219, 255, 0.16);
+	border-radius: 999px 18px 18px 999px;
+	background: rgba(9, 12, 36, 0.78);
+	box-shadow: 0 18px 42px rgba(5, 6, 25, 0.38);
+	backdrop-filter: blur(16px);
+	pointer-events: auto;
+	animation: playerTrackIn 480ms 70ms both cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.playerActionButton {
+	position: relative;
+	display: grid;
+	width: 72px;
+	height: 72px;
+	flex: 0 0 72px;
+	place-items: center;
+	padding: 0;
+	border-radius: 50%;
+}
+
+.playerActionButton svg {
+	width: 43px;
+	height: 43px;
+	fill: rgba(237, 240, 255, 0.08);
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.rankClanAction {
+	border-radius: 15px;
+	color: #e4cf8f;
+}
+
+.selfCareAction { color: #9de4ba; }
+.messagesAction { color: #9fc7ff; }
+.inventoryAction { color: #e4b9ff; }
+
+.playerMenuStatus {
+	position: fixed;
+	top: 306px;
+	right: 62px;
+	z-index: 15;
+	width: 176px;
+	margin: 0;
+	color: rgba(226, 232, 255, 0.62);
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: 0.1em;
+	text-align: center;
+	text-transform: uppercase;
+	pointer-events: none;
+}
+
 .primaryRadialButton.isDocked {
 	position: fixed;
 	top: 50%;
@@ -1113,6 +1306,40 @@ button, a { font: inherit; }
 	}
 }
 
+@keyframes playerButtonExpand {
+	from {
+		opacity: 0.35;
+		transform: translate(-38vw, 28vh) scale(0.52);
+	}
+	to {
+		opacity: 1;
+		transform: translate(0, 0) scale(1);
+	}
+}
+
+@keyframes playerTrackIn {
+	from {
+		opacity: 0;
+		transform: translateX(90px) scaleX(0.65);
+		transform-origin: right;
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0) scaleX(1);
+	}
+}
+
+@keyframes playerMiniIn {
+	from {
+		opacity: 0;
+		transform: translate(20px, -16px) scale(0.65);
+	}
+	to {
+		opacity: 1;
+		transform: translate(0, 0) scale(1);
+	}
+}
+
 @media (max-width: 640px) {
 	.appHeader { top: 14px; left: 14px; }
 	.brand {
@@ -1221,6 +1448,69 @@ button, a { font: inherit; }
 	.primaryRadialButton.isDocked svg {
 		width: 46px;
 		height: 46px;
+	}
+
+	.radialMenu.playerMenuOpen .primaryRadialButton {
+		top: 70px;
+		right: 18px;
+		width: 116px;
+		height: 116px;
+	}
+
+	.radialMenu.playerMenuOpen .primaryRadialButton svg {
+		width: 91px;
+		height: 91px;
+	}
+
+	.playerActionTrack {
+		top: 200px;
+		right: 10px;
+		left: 10px;
+		justify-content: center;
+		gap: 8px;
+		padding: 9px;
+		border-radius: 18px;
+	}
+
+	.playerActionButton {
+		width: 58px;
+		height: 58px;
+		flex-basis: 58px;
+	}
+
+	.playerActionButton svg {
+		width: 35px;
+		height: 35px;
+	}
+
+	.playerActionButton span { font-size: 6px; }
+
+	.playerExitButton {
+		top: 161px;
+		right: 105px;
+		width: 48px;
+		height: 48px;
+	}
+
+	.playerSettingsButton {
+		top: 172px;
+		right: 55px;
+		width: 48px;
+		height: 48px;
+	}
+
+	.playerMiniButton svg {
+		width: 29px;
+		height: 29px;
+	}
+
+	.playerMiniButton span { display: none; }
+
+	.playerMenuStatus {
+		top: 279px;
+		right: 10px;
+		left: 10px;
+		width: auto;
 	}
 
 	.modeButton svg {
