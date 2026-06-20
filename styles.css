@@ -658,12 +658,12 @@ button, a { font: inherit; }
 
 .radialMenu.playerMenuOpen .primaryRadialButton {
 	position: fixed;
-	top: 96px;
-	right: 54px;
+	top: 78px;
+	right: 42px;
 	left: auto;
 	z-index: 12;
-	width: 184px;
-	height: 184px;
+	width: 148px;
+	height: 148px;
 	margin: 0;
 	transform: none;
 	animation: playerButtonTravel 520ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -674,9 +674,9 @@ button, a { font: inherit; }
 	transform: scale(1.02);
 }
 
-.radialMenu.playerMenuOpen .primaryRadialButton svg {
-	width: 142px;
-	height: 142px;
+.radialMenu.playerMenuOpen .primaryRadialButton .vitruvianArtwork {
+	width: 126px;
+	height: 126px;
 }
 
 .radialMenu.playerMenuOpen .primaryRadialButton .radialLabel {
@@ -772,14 +772,14 @@ button, a { font: inherit; }
 }
 
 .playerExitButton {
-	top: 245px;
-	right: 202px;
+	top: 202px;
+	right: 174px;
 	animation: playerMiniIn 360ms 430ms both cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .playerSettingsButton {
-	top: 270px;
-	right: 144px;
+	top: 220px;
+	right: 116px;
 	animation: playerMiniIn 360ms 480ms both cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -787,8 +787,8 @@ button, a { font: inherit; }
 
 .playerActionTrack {
 	position: fixed;
-	top: 143px;
-	right: 257px;
+	top: 112px;
+	right: 206px;
 	z-index: 10;
 	display: flex;
 	flex-direction: row-reverse;
@@ -836,8 +836,8 @@ button, a { font: inherit; }
 
 .playerMenuStatus {
 	position: fixed;
-	top: 306px;
-	right: 62px;
+	top: 262px;
+	right: 35px;
 	z-index: 15;
 	width: 176px;
 	margin: 0;
@@ -889,60 +889,17 @@ button, a { font: inherit; }
 	stroke-linejoin: round;
 }
 
-.vitruvianIcon .vitruvianCircle {
-	fill: rgba(188, 244, 214, 0.025);
-	stroke: rgba(220, 255, 236, 0.86);
-	stroke-width: 1.2;
-}
-
-.vitruvianIcon .vitruvianSquare {
-	fill: none;
-	stroke: rgba(156, 227, 189, 0.52);
-	stroke-width: 0.9;
-}
-
-.vitruvianIcon .vitruvianHead {
-	fill: rgba(237, 255, 245, 0.2);
-	stroke: #edfff5;
-	stroke-width: 1.25;
-}
-
-.vitruvianIcon .vitruvianHair {
-	fill: rgba(237, 255, 245, 0.46);
-	stroke: #edfff5;
-	stroke-width: 0.8;
-}
-
-.vitruvianIcon .vitruvianNeck,
-.vitruvianIcon .vitruvianAnatomy {
-	fill: none;
-	stroke: rgba(237, 255, 245, 0.7);
-	stroke-width: 0.85;
-}
-
-.vitruvianIcon .vitruvianTorso {
-	fill: rgba(144, 219, 178, 0.17);
-	stroke: #edfff5;
-	stroke-width: 1.35;
-}
-
-.vitruvianIcon .vitruvianStraightArms,
-.vitruvianIcon .vitruvianStraightLegs {
-	fill: none;
-	stroke: #edfff5;
-	stroke-width: 2.1;
-}
-
-.vitruvianIcon .vitruvianRaisedArms,
-.vitruvianIcon .vitruvianSpreadLegs {
-	fill: none;
-	stroke: rgba(237, 255, 245, 0.77);
-	stroke-width: 1.75;
-}
-
-.vitruvianIcon .vitruvianJoint {
-	fill: #edfff5;
-	stroke: none;
+.vitruvianArtwork {
+	display: block;
+	width: 82px;
+	height: 82px;
+	border-radius: 50%;
+	object-fit: cover;
+	filter:
+		saturate(0.82)
+		contrast(1.08)
+		drop-shadow(0 4px 9px rgba(0, 0, 0, 0.36));
+	pointer-events: none;
 }
 
 .modeButton {
@@ -1498,19 +1455,19 @@ button, a { font: inherit; }
 	}
 
 	.radialMenu.playerMenuOpen .primaryRadialButton {
-		top: 70px;
+		top: 60px;
 		right: 18px;
-		width: 116px;
-		height: 116px;
+		width: 100px;
+		height: 100px;
 	}
 
-	.radialMenu.playerMenuOpen .primaryRadialButton svg {
-		width: 91px;
-		height: 91px;
+	.radialMenu.playerMenuOpen .primaryRadialButton .vitruvianArtwork {
+		width: 86px;
+		height: 86px;
 	}
 
 	.playerActionTrack {
-		top: 200px;
+		top: 179px;
 		right: 10px;
 		left: 10px;
 		justify-content: center;
@@ -1536,15 +1493,15 @@ button, a { font: inherit; }
 	}
 
 	.playerExitButton {
-		top: 161px;
-		right: 105px;
+		top: 143px;
+		right: 92px;
 		width: 48px;
 		height: 48px;
 	}
 
 	.playerSettingsButton {
-		top: 172px;
-		right: 55px;
+		top: 151px;
+		right: 43px;
 		width: 48px;
 		height: 48px;
 	}
@@ -1557,7 +1514,7 @@ button, a { font: inherit; }
 	.playerMiniButton span { display: block; }
 
 	.playerMenuStatus {
-		top: 279px;
+		top: 257px;
 		right: 10px;
 		left: 10px;
 		width: auto;
