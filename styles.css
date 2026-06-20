@@ -666,7 +666,7 @@ button, a { font: inherit; }
 	height: 184px;
 	margin: 0;
 	transform: none;
-	animation: playerButtonExpand 420ms cubic-bezier(0.22, 1, 0.36, 1);
+	animation: playerButtonTravel 520ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .radialMenu.playerMenuOpen .primaryRadialButton:hover,
@@ -747,13 +747,13 @@ button, a { font: inherit; }
 .playerExitButton {
 	top: 245px;
 	right: 202px;
-	animation: playerMiniIn 360ms 100ms both cubic-bezier(0.22, 1, 0.36, 1);
+	animation: playerMiniIn 360ms 430ms both cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .playerSettingsButton {
 	top: 270px;
 	right: 144px;
-	animation: playerMiniIn 360ms 150ms both cubic-bezier(0.22, 1, 0.36, 1);
+	animation: playerMiniIn 360ms 480ms both cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .playerSettingsButton svg { stroke-width: 2.2; }
@@ -774,7 +774,7 @@ button, a { font: inherit; }
 	box-shadow: 0 18px 42px rgba(5, 6, 25, 0.38);
 	backdrop-filter: blur(16px);
 	pointer-events: auto;
-	animation: playerTrackIn 480ms 70ms both cubic-bezier(0.22, 1, 0.36, 1);
+	animation: playerTrackIn 480ms 380ms both cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .playerActionButton {
@@ -863,39 +863,59 @@ button, a { font: inherit; }
 }
 
 .vitruvianIcon .vitruvianCircle {
-	fill: rgba(188, 244, 214, 0.04);
-	stroke: rgba(220, 255, 236, 0.8);
-	stroke-width: 1.4;
+	fill: rgba(188, 244, 214, 0.025);
+	stroke: rgba(220, 255, 236, 0.86);
+	stroke-width: 1.2;
 }
 
 .vitruvianIcon .vitruvianSquare {
 	fill: none;
-	stroke: rgba(156, 227, 189, 0.48);
-	stroke-width: 1;
+	stroke: rgba(156, 227, 189, 0.52);
+	stroke-width: 0.9;
 }
 
 .vitruvianIcon .vitruvianHead {
 	fill: rgba(237, 255, 245, 0.2);
-	stroke-width: 1.7;
+	stroke: #edfff5;
+	stroke-width: 1.25;
 }
 
-.vitruvianIcon .vitruvianBody {
-	stroke-width: 2.2;
+.vitruvianIcon .vitruvianHair {
+	fill: rgba(237, 255, 245, 0.46);
+	stroke: #edfff5;
+	stroke-width: 0.8;
 }
 
-.vitruvianIcon .vitruvianEcho {
-	stroke: rgba(237, 255, 245, 0.72);
-	stroke-width: 1.65;
+.vitruvianIcon .vitruvianNeck,
+.vitruvianIcon .vitruvianAnatomy {
+	fill: none;
+	stroke: rgba(237, 255, 245, 0.7);
+	stroke-width: 0.85;
+}
+
+.vitruvianIcon .vitruvianTorso {
+	fill: rgba(144, 219, 178, 0.17);
+	stroke: #edfff5;
+	stroke-width: 1.35;
+}
+
+.vitruvianIcon .vitruvianStraightArms,
+.vitruvianIcon .vitruvianStraightLegs {
+	fill: none;
+	stroke: #edfff5;
+	stroke-width: 2.1;
+}
+
+.vitruvianIcon .vitruvianRaisedArms,
+.vitruvianIcon .vitruvianSpreadLegs {
+	fill: none;
+	stroke: rgba(237, 255, 245, 0.77);
+	stroke-width: 1.75;
 }
 
 .vitruvianIcon .vitruvianJoint {
 	fill: #edfff5;
 	stroke: none;
-}
-
-.vitruvianIcon .vitruvianGround {
-	stroke: rgba(156, 227, 189, 0.56);
-	stroke-width: 1;
 }
 
 .modeButton {
@@ -1306,10 +1326,10 @@ button, a { font: inherit; }
 	}
 }
 
-@keyframes playerButtonExpand {
+@keyframes playerButtonTravel {
 	from {
-		opacity: 0.35;
-		transform: translate(-38vw, 28vh) scale(0.52);
+		opacity: 1;
+		transform: translate(calc(-50vw + 146px), calc(50vh - 188px)) scale(0.52);
 	}
 	to {
 		opacity: 1;
