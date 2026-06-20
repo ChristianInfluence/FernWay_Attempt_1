@@ -363,6 +363,35 @@ button, a { font: inherit; }
 		0 0 42px rgba(116, 214, 160, 0.24);
 }
 
+.primaryRadialButton.isDocked {
+	position: fixed;
+	top: 50%;
+	left: 20px;
+	z-index: 850;
+	width: 76px;
+	height: 76px;
+	transform: translateY(-50%);
+	box-shadow:
+		0 18px 44px rgba(4, 13, 24, 0.55),
+		0 0 0 7px rgba(116, 214, 160, 0.09),
+		inset 0 1px rgba(255, 255, 255, 0.2);
+	animation: dockedButtonIn 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.primaryRadialButton.isDocked:hover,
+.primaryRadialButton.isDocked:focus-visible {
+	transform: translateY(-50%) scale(1.04);
+}
+
+.primaryRadialButton.isDocked svg {
+	width: 54px;
+	height: 54px;
+}
+
+.primaryRadialButton.isDocked .radialLabel {
+	top: calc(100% + 7px);
+}
+
 .primaryRadialButton svg {
 	width: 66px;
 	height: 66px;
@@ -532,6 +561,17 @@ button, a { font: inherit; }
 	70%, 100% { box-shadow: 0 0 0 7px rgba(116, 214, 160, 0); }
 }
 
+@keyframes dockedButtonIn {
+	from {
+		opacity: 0;
+		transform: translate(-20px, -50%) scale(0.86);
+	}
+	to {
+		opacity: 1;
+		transform: translate(0, -50%) scale(1);
+	}
+}
+
 @media (max-width: 640px) {
 	.appHeader { top: 14px; left: 14px; }
 	.brand {
@@ -577,6 +617,17 @@ button, a { font: inherit; }
 	.primaryRadialButton svg {
 		width: 50px;
 		height: 50px;
+	}
+
+	.primaryRadialButton.isDocked {
+		left: 14px;
+		width: 64px;
+		height: 64px;
+	}
+
+	.primaryRadialButton.isDocked svg {
+		width: 46px;
+		height: 46px;
 	}
 
 	.modeButton svg {

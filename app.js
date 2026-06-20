@@ -207,11 +207,33 @@
 
   function closeMenuForMap(){
     const menu = document.getElementById('menuOverlay');
+    const mainSettingsBtn = document.getElementById('mainSettingsBtn');
+
+    if(mainSettingsBtn){
+      document.body.appendChild(mainSettingsBtn);
+      mainSettingsBtn.classList.add('isDocked');
+      mainSettingsBtn.setAttribute('aria-label', 'Open FernWay controls');
+    }
+
     if(menu) menu.classList.remove('isVisible');
 
     window.setTimeout(() => {
       if(map) map.resize();
     }, 250);
+  }
+
+  function openRadialMenu(){
+    const menu = document.getElementById('menuOverlay');
+    const radialMenu = menu?.querySelector('.radialMenu');
+    const mainSettingsBtn = document.getElementById('mainSettingsBtn');
+
+    if(!menu || !radialMenu || !mainSettingsBtn) return;
+
+    radialMenu.appendChild(mainSettingsBtn);
+    mainSettingsBtn.classList.remove('isDocked', 'isActive');
+    mainSettingsBtn.setAttribute('aria-label', 'Player and main settings');
+    setRadialMessage('Choose your path');
+    menu.classList.add('isVisible');
   }
 
   function setRadialMessage(message){
@@ -269,6 +291,11 @@
       setRadialMessage('Story mode · artwork and experience to follow');
     });
     if(mainSettingsBtn) mainSettingsBtn.addEventListener('click', ()=>{
+      if(mainSettingsBtn.classList.contains('isDocked')){
+        openRadialMenu();
+        return;
+      }
+
       mainSettingsBtn.classList.toggle('isActive');
       setRadialMessage(
         mainSettingsBtn.classList.contains('isActive')
