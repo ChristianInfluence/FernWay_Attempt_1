@@ -411,13 +411,97 @@ button, a { font: inherit; }
 }
 
 .modeButton svg {
-	width: 57px;
-	height: 57px;
+	width: 64px;
+	height: 64px;
 	fill: none;
 	stroke: currentColor;
-	stroke-width: 2.2;
+	stroke-width: 1.8;
 	stroke-linecap: round;
 	stroke-linejoin: round;
+	filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.42));
+}
+
+.mapModeButton {
+	color: #8ee9f0;
+	border-color: rgba(142, 233, 240, 0.52);
+	background:
+		radial-gradient(circle at 38% 30%, rgba(39, 121, 135, 0.82), rgba(10, 32, 53, 0.98) 72%);
+}
+
+.nauticalCompassIcon .compassOuterRing {
+	fill: rgba(11, 42, 61, 0.65);
+	stroke-width: 2.7;
+}
+
+.nauticalCompassIcon .compassInnerRing {
+	stroke: rgba(217, 250, 251, 0.55);
+	stroke-width: 1;
+}
+
+.nauticalCompassIcon .compassStar {
+	fill: rgba(142, 233, 240, 0.11);
+	stroke: rgba(217, 250, 251, 0.7);
+	stroke-width: 1.2;
+}
+
+.nauticalCompassIcon .compassNeedleNorth {
+	fill: #f06f68;
+	stroke: #ffd3cd;
+	stroke-width: 1.2;
+}
+
+.nauticalCompassIcon .compassNeedleSouth {
+	fill: #d9fafb;
+	stroke: #7cced7;
+	stroke-width: 1.2;
+}
+
+.nauticalCompassIcon .compassHub {
+	fill: #f3d892;
+	stroke: #fff2c7;
+}
+
+.nauticalCompassIcon .compassTicks { stroke: rgba(217, 250, 251, 0.7); }
+
+.nauticalCompassIcon text {
+	fill: #eafdfd;
+	stroke: none;
+	font-family: Georgia, serif;
+	font-size: 6px;
+	font-weight: 800;
+}
+
+.storyModeButton {
+	color: #e1bbff;
+	border-color: rgba(225, 187, 255, 0.52);
+	background:
+		radial-gradient(circle at 38% 30%, rgba(111, 65, 147, 0.86), rgba(31, 20, 65, 0.98) 72%);
+}
+
+.storyBookIcon .bookCover {
+	fill: rgba(54, 25, 81, 0.85);
+	stroke: #c891eb;
+	stroke-width: 2.6;
+}
+
+.storyBookIcon .bookPages {
+	fill: rgba(250, 238, 209, 0.16);
+	stroke: #f6e4be;
+	stroke-width: 1.7;
+}
+
+.storyBookIcon .bookBinding { stroke: #e9c9ff; stroke-width: 2; }
+.storyBookIcon .bookLines { stroke: rgba(246, 228, 190, 0.7); stroke-width: 1.2; }
+
+.storyBookIcon .bookFlourish {
+	fill: rgba(255, 218, 132, 0.24);
+	stroke: #ffdc8b;
+	stroke-width: 1.4;
+}
+
+.storyBookIcon .bookSpark {
+	fill: #ffdc8b;
+	stroke: none;
 }
 
 .mapModeButton {
@@ -757,8 +841,8 @@ button, a { font: inherit; }
 	}
 
 	.modeButton svg {
-		width: 43px;
-		height: 43px;
+		width: 51px;
+		height: 51px;
 	}
 
 	.utilityButton { font-size: 19px; }

@@ -85,10 +85,18 @@
           aria-label="Open map"
           data-image-ref="JPEG / PNG TO FOLLOW: simplified compass rose"
         >
-          <svg viewBox="0 0 64 64" aria-hidden="true">
-            <circle cx="32" cy="32" r="25"></circle>
-            <path d="M41 23l-6 12-12 6 6-12 12-6z"></path>
-            <path d="M32 4v7M32 53v7M4 32h7M53 32h7"></path>
+          <svg class="nauticalCompassIcon" viewBox="0 0 72 72" aria-hidden="true">
+            <circle class="compassOuterRing" cx="36" cy="36" r="30"></circle>
+            <circle class="compassInnerRing" cx="36" cy="36" r="23"></circle>
+            <path class="compassStar" d="M36 8l6 20 22 8-22 8-6 20-6-20-22-8 22-8 6-20z"></path>
+            <path class="compassNeedleNorth" d="M36 13l6 23-6 6-6-6 6-23z"></path>
+            <path class="compassNeedleSouth" d="M36 59l-6-23 6-6 6 6-6 23z"></path>
+            <circle class="compassHub" cx="36" cy="36" r="4"></circle>
+            <path class="compassTicks" d="M36 4v5M36 63v5M4 36h5M63 36h5M14 14l4 4M54 54l4 4M58 14l-4 4M18 54l-4 4"></path>
+            <text x="36" y="12" text-anchor="middle">N</text>
+            <text x="61" y="39" text-anchor="middle">E</text>
+            <text x="36" y="65" text-anchor="middle">S</text>
+            <text x="11" y="39" text-anchor="middle">W</text>
           </svg>
           <span class="radialLabel">Map</span>
         </button>
@@ -101,9 +109,14 @@
           aria-label="Open story mode"
           data-image-ref="JPEG / PNG TO FOLLOW: simplified open book"
         >
-          <svg viewBox="0 0 64 64" aria-hidden="true">
-            <path d="M8 15c9-2 17 0 24 6v31c-7-6-15-8-24-6V15zM56 15c-9-2-17 0-24 6v31c7-6 15-8 24-6V15z"></path>
-            <path d="M15 24c4 0 8 1 11 3M15 32c4 0 8 1 11 3M49 24c-4 0-8 1-11 3M49 32c-4 0-8 1-11 3"></path>
+          <svg class="storyBookIcon" viewBox="0 0 72 72" aria-hidden="true">
+            <path class="bookCover" d="M7 20c10-4 20-2 29 6 9-8 19-10 29-6v38c-10-3-20-1-29 7-9-8-19-10-29-7V20z"></path>
+            <path class="bookPages" d="M11 16c9-2 17 1 25 8 8-7 16-10 25-8v37c-9-2-17 1-25 8-8-7-16-10-25-8V16z"></path>
+            <path class="bookBinding" d="M36 24v37"></path>
+            <path class="bookLines" d="M17 29c5 0 10 2 14 5M17 38c5 0 10 2 14 5M55 29c-5 0-10 2-14 5M55 38c-5 0-10 2-14 5"></path>
+            <path class="bookFlourish" d="M36 16c1-5 4-8 8-9-1 4 0 6 3 8-5 0-8 2-11 6-3-4-6-6-11-6 3-2 4-4 3-8 4 1 7 4 8 9z"></path>
+            <circle class="bookSpark" cx="18" cy="11" r="2"></circle>
+            <circle class="bookSpark" cx="55" cy="10" r="1.5"></circle>
           </svg>
           <span class="radialLabel">Story</span>
         </button>
