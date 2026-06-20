@@ -40,6 +40,21 @@
       </svg>
     </button>
 
+    <section id="coordinatePanel" class="coordinatePanel" aria-label="Map coordinates">
+      <div class="coordinateReadout">
+        <span class="coordinateCrosshair" aria-hidden="true">⌖</span>
+        <div>
+          <small id="coordinateModeLabel">Map center</small>
+          <strong id="coordinateValue">—</strong>
+        </div>
+      </div>
+      <div class="coordinateActions">
+        <button id="pickCoordinateBtn" type="button">Pick on map</button>
+        <button id="copyCoordinateBtn" type="button" disabled>Copy</button>
+      </div>
+      <p id="coordinateStatus" role="status">Click “Pick on map,” then choose a location.</p>
+    </section>
+
     <aside id="achievementRail" class="achievementRail" aria-label="Achievement categories">
       <p class="achievementRailTitle">Nearby achievements</p>
       <div id="achievementRailButtons" class="achievementRailButtons"></div>
@@ -193,6 +208,7 @@
                   <input id="taskLongitude" type="number" min="-180" max="180" step="any" placeholder="-122.4194">
                 </label>
                 <button id="useCurrentMapCenter" class="settingsSecondaryButton" type="button">Use current map center</button>
+                <button id="pickTaskCoordinates" class="settingsSecondaryButton" type="button">Pick on map</button>
               </div>
 
               <div class="settingsFormActions settingsWideField">

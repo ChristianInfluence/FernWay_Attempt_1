@@ -14,6 +14,11 @@
   let profileData = {};
   let selectedTaskCategory = null;
   let pendingTaskImage = '';
+  let selectedCoordinates = null;
+  let coordinateReadoutCoordinates = null;
+  let coordinateMarker = null;
+  let coordinatePickMode = false;
+  let coordinatePickTarget = 'panel';
 
   const taskStorageKey = 'fernway-achievement-tasks-v1';
   const profileStorageKey = 'fernway-profile-v1';
@@ -137,6 +142,10 @@
     return `achievement-${Date.now()}-${Math.random().toString(16).slice(2)}`;
   }
 
+  function formatCoordinates(longitude, latitude){
+    return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+  }
+
   function initializeMap(){
     map = new maplibregl.Map({
       container: 'map',
@@ -180,6 +189,13 @@
 
       hideLoading();
       showMenu();
+      updateCoordinateFromCenter();
+    });
+
+    map.on('move', updateCoordinateFromCenter);
+    map.on('click', (event)=>{
+      if(!coordinatePickMode) return;
+      selectMapCoordinates(event.lngLat.lng, event.lngLat.lat);
     });
 
     window.setTimeout(() => {
@@ -352,6 +368,7 @@
 
     if(menu) menu.classList.remove('isVisible');
     showAchievementRail();
+    showCoordinatePanel();
 
     window.setTimeout(() => {
       if(map) map.resize();
@@ -372,6 +389,7 @@
     setRadialMessage('Choose your path');
     menu.classList.add('isVisible');
     hideAchievementRail();
+    hideCoordinatePanel();
     clearAchievementMarkers();
   }
 
@@ -550,6 +568,105 @@
     document.getElementById('achievementCardProgressText').textContent =
       `${categoryData.progress} of ${categoryData.goal} badge steps complete · ${place.isCustom ? 'Custom map achievement' : `Nearby stop ${index + 1} of ${totalPlaces}`}`;
     card.classList.add('isVisible');
+  }
+
+  function showCoordinatePanel(){
+    const panel = document.getElementById('coordinatePanel');
+    if(!panel) return;
+    panel.classList.add('isVisible');
+    updateCoordinateFromCenter();
+  }
+
+  function hideCoordinatePanel(){
+    document.getElementById('coordinatePanel')?.classList.remove('isVisible');
+    cancelCoordinatePicking();
+  }
+
+  function updateCoordinateFromCenter(){
+    if(!map || selectedCoordinates || coordinatePickMode) return;
+    const center = map.getCenter();
+    updateCoordinateReadout(center.lng, center.lat, 'Map center', true);
+  }
+
+  function updateCoordinateReadout(longitude, latitude, label, canCopy = true){
+    coordinateReadoutCoordinates = { longitude, latitude };
+    document.getElementById('coordinateModeLabel').textContent = label;
+    document.getElementById('coordinateValue').textContent = formatCoordinates(longitude, latitude);
+    document.getElementById('copyCoordinateBtn').disabled = !canCopy;
+  }
+
+  function startCoordinatePicking(target = 'panel'){
+    if(!map) return;
+    coordinatePickMode = true;
+    coordinatePickTarget = target;
+    document.body.classList.add('coordinatePicking');
+    document.getElementById('coordinatePanel')?.classList.add('isVisible', 'isPicking');
+    document.getElementById('pickCoordinateBtn').textContent = 'Cancel picking';
+    document.getElementById('coordinateModeLabel').textContent = 'Pick a location';
+    document.getElementById('coordinateStatus').textContent = 'Click anywhere on the map to capture coordinates.';
+
+    if(target === 'task'){
+      closeSettingsWorkspace();
+    }
+  }
+
+  function cancelCoordinatePicking(){
+    coordinatePickMode = false;
+    coordinatePickTarget = 'panel';
+    document.body.classList.remove('coordinatePicking');
+    document.getElementById('coordinatePanel')?.classList.remove('isPicking');
+    document.getElementById('pickCoordinateBtn').textContent = 'Pick on map';
+    document.getElementById('coordinateStatus').textContent =
+      selectedCoordinates ? 'Coordinates selected. Copy or pick another location.' : 'Click “Pick on map,” then choose a location.';
+  }
+
+  function selectMapCoordinates(longitude, latitude){
+    selectedCoordinates = { longitude, latitude };
+    updateCoordinateReadout(longitude, latitude, 'Selected point', true);
+    document.getElementById('coordinateStatus').textContent = 'Coordinates selected. Copy or pick another location.';
+
+    if(!coordinateMarker){
+      const markerElement = document.createElement('div');
+      markerElement.className = 'coordinateMarker';
+      markerElement.innerHTML = '<span>⌖</span>';
+      coordinateMarker = new maplibregl.Marker({
+        element: markerElement,
+        anchor: 'center'
+      });
+    }
+    coordinateMarker.setLngLat([longitude, latitude]).addTo(map);
+
+    if(coordinatePickTarget === 'task'){
+      document.getElementById('taskLatitude').value = latitude.toFixed(6);
+      document.getElementById('taskLongitude').value = longitude.toFixed(6);
+      openSettingsWorkspace('task-editor');
+      document.getElementById('taskSaveStatus').textContent = 'Map coordinates selected.';
+    }
+
+    cancelCoordinatePicking();
+  }
+
+  async function copySelectedCoordinates(){
+    if(!coordinateReadoutCoordinates) return;
+    const text = formatCoordinates(
+      coordinateReadoutCoordinates.longitude,
+      coordinateReadoutCoordinates.latitude
+    );
+
+    try {
+      await navigator.clipboard.writeText(text);
+      document.getElementById('coordinateStatus').textContent = 'Coordinates copied to clipboard.';
+    } catch {
+      const helper = document.createElement('textarea');
+      helper.value = text;
+      helper.style.position = 'fixed';
+      helper.style.opacity = '0';
+      document.body.appendChild(helper);
+      helper.select();
+      document.execCommand('copy');
+      helper.remove();
+      document.getElementById('coordinateStatus').textContent = 'Coordinates copied to clipboard.';
+    }
   }
 
   function openSettingsWorkspace(view = 'profile'){
@@ -918,6 +1035,8 @@
     const utilityButtons = document.querySelectorAll('.utilityButton');
     const loading = document.getElementById('loadingOverlay');
     const closeAchievementCard = document.getElementById('closeAchievementCard');
+    const pickCoordinateBtn = document.getElementById('pickCoordinateBtn');
+    const copyCoordinateBtn = document.getElementById('copyCoordinateBtn');
 
     loadLocalData();
     buildAchievementRail();
@@ -960,6 +1079,16 @@
         document.getElementById('achievementMapCard')?.classList.remove('isVisible');
       });
     }
+    if(pickCoordinateBtn){
+      pickCoordinateBtn.addEventListener('click', ()=>{
+        if(coordinatePickMode){
+          cancelCoordinatePicking();
+        } else {
+          startCoordinatePicking('panel');
+        }
+      });
+    }
+    if(copyCoordinateBtn) copyCoordinateBtn.addEventListener('click', copySelectedCoordinates);
 
     document.getElementById('closeSettingsWorkspace')?.addEventListener('click', closeSettingsWorkspace);
     document.getElementById('settingsWorkspace')?.addEventListener('click', (event)=>{
@@ -1009,6 +1138,9 @@
       if(!center) return;
       document.getElementById('taskLatitude').value = center.lat.toFixed(6);
       document.getElementById('taskLongitude').value = center.lng.toFixed(6);
+    });
+    document.getElementById('pickTaskCoordinates')?.addEventListener('click', ()=>{
+      startCoordinatePicking('task');
     });
     document.addEventListener('keydown', (event)=>{
       if(event.key === 'Escape' && document.getElementById('settingsWorkspace')?.classList.contains('isVisible')){
