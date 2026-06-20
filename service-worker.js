@@ -4,7 +4,7 @@
   - Caches a few core assets at install and serves cached responses when available
 */
 
-const CACHE_NAME = 'fernway-v25'; // versioned cache name for easy updates
+const CACHE_NAME = 'fernway-v26'; // versioned cache name for easy updates
 const ASSETS_TO_CACHE = [
   '/',           // root HTML
   '/index.html', // main page

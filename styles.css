@@ -280,7 +280,7 @@ button, a { font: inherit; }
 	--satellite-size: 32px;
 	--spoke-radius: min(20vmin, 142px);
 	--satellite-radius: min(28vmin, 198px);
-	--outer-radius: min(34vmin, 240px);
+	--outer-radius: min(40vmin, 286px);
 	position: relative;
 	width: calc(var(--outer-radius) * 2 + var(--primary-size));
 	height: calc(var(--outer-radius) * 2 + var(--primary-size));
@@ -730,9 +730,9 @@ button, a { font: inherit; }
 		0 0 14px color-mix(in srgb, var(--accent) 18%, transparent);
 	transform:
 		translate(-50%, -50%)
-		rotate(var(--sat-angle, var(--angle)))
+		rotate(var(--angle))
 		translateY(calc(var(--satellite-radius) * -1))
-		rotate(calc(0deg - var(--sat-angle, var(--angle))));
+		rotate(calc(0deg - var(--angle)));
 }
 
 .radialLabel {
@@ -889,7 +889,7 @@ button, a { font: inherit; }
 		--satellite-size: 26px;
 		--spoke-radius: 88px;
 		--satellite-radius: 126px;
-		--outer-radius: min(38vw, 148px);
+		--outer-radius: min(47vw, 184px);
 	}
 
 	.primaryRadialButton svg {
