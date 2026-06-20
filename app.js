@@ -8,6 +8,100 @@
   let appReady = false;
   let videoNearEnd = false;
   let loadingFadeStarted = false;
+  let achievementMarkers = [];
+  let activeAchievementCategory = null;
+
+  // Prototype achievement content. Replace with nearby API/database results later.
+  const achievementCategories = {
+    flames: {
+      label: 'Flames',
+      accent: '#ff704f',
+      progress: 2,
+      goal: 5,
+      places: [
+        ['Trail Steward', 'Help restore or care for a nearby trail.'],
+        ['Community Spark', 'Join a local service activity.'],
+        ['Campcraft', 'Practice a safe outdoor skill.']
+      ]
+    },
+    palettes: {
+      label: 'Palettes',
+      accent: '#f2a8ff',
+      progress: 1,
+      goal: 4,
+      places: [
+        ['Public Art Hunt', 'Find and document a local work of art.'],
+        ['Sketch the Scene', 'Create something inspired by this place.'],
+        ['Creative Workshop', 'Take part in a nearby creative activity.']
+      ]
+    },
+    vines: {
+      label: 'Vines',
+      accent: '#69db83',
+      progress: 3,
+      goal: 6,
+      places: [
+        ['Native Plant Watch', 'Identify native plants in the area.'],
+        ['Habitat Helper', 'Complete a local nature-care activity.'],
+        ['Tree Story', 'Learn the story of a notable nearby tree.']
+      ]
+    },
+    locks: {
+      label: 'Locks',
+      accent: '#79b7ff',
+      progress: 1,
+      goal: 5,
+      places: [
+        ['Hidden History', 'Unlock a story tied to this location.'],
+        ['Local Mystery', 'Solve a place-based clue.'],
+        ['Knowledge Gate', 'Complete the challenge to reveal a new route.']
+      ]
+    },
+    hammers: {
+      label: 'Hammers',
+      accent: '#f5b85c',
+      progress: 2,
+      goal: 4,
+      places: [
+        ['Build & Repair', 'Practice a useful making or repair skill.'],
+        ['Craft Heritage', 'Discover a traditional local craft.'],
+        ['Hands-On Helper', 'Contribute to a practical community project.']
+      ]
+    },
+    scales: {
+      label: 'Scales',
+      accent: '#e8d98c',
+      progress: 0,
+      goal: 4,
+      places: [
+        ['Civic Voice', 'Learn how a nearby civic place serves people.'],
+        ['Fairness in Action', 'Complete a community-minded challenge.'],
+        ['Local Leadership', 'Meet or learn about someone serving the area.']
+      ]
+    },
+    vials: {
+      label: 'Vials',
+      accent: '#73dfdf',
+      progress: 2,
+      goal: 6,
+      places: [
+        ['Field Scientist', 'Make an observation about the local environment.'],
+        ['Water Watch', 'Learn about a nearby water system.'],
+        ['Citizen Science', 'Contribute a useful local data point.']
+      ]
+    },
+    scrolls: {
+      label: 'Scrolls',
+      accent: '#c9a9ff',
+      progress: 4,
+      goal: 7,
+      places: [
+        ['Living History', 'Discover an event connected to this place.'],
+        ['Story Keeper', 'Record a local memory or oral history.'],
+        ['Archive Explorer', 'Find a historical detail hidden nearby.']
+      ]
+    }
+  };
 
   function initializeMap(){
     map = new maplibregl.Map({
@@ -199,6 +293,11 @@
         zoom: Math.max(map.getZoom(), 16),
         duration: 700
       });
+      if(activeAchievementCategory){
+        window.setTimeout(()=>{
+          showAchievementAreas(activeAchievementCategory);
+        }, 720);
+      }
       return;
     }
 
@@ -216,6 +315,7 @@
     }
 
     if(menu) menu.classList.remove('isVisible');
+    showAchievementRail();
 
     window.setTimeout(() => {
       if(map) map.resize();
@@ -234,11 +334,137 @@
     mainSettingsBtn.setAttribute('aria-label', 'Player and main settings');
     setRadialMessage('Choose your path');
     menu.classList.add('isVisible');
+    hideAchievementRail();
+    clearAchievementMarkers();
   }
 
   function setRadialMessage(message){
     const radialMessage = document.getElementById('radialMessage');
     if(radialMessage) radialMessage.textContent = message;
+  }
+
+  function buildAchievementRail(){
+    const railButtons = document.getElementById('achievementRailButtons');
+    if(!railButtons) return;
+
+    railButtons.replaceChildren();
+
+    document.querySelectorAll('.achievementButton').forEach((sourceButton)=>{
+      const category = sourceButton.dataset.category;
+      const categoryData = achievementCategories[category];
+      if(!categoryData) return;
+
+      const button = document.createElement('button');
+      button.className = 'achievementRailButton';
+      button.type = 'button';
+      button.dataset.category = category;
+      button.style.setProperty('--accent', categoryData.accent);
+      button.setAttribute('aria-label', `Show nearby ${categoryData.label} achievements`);
+      button.appendChild(sourceButton.querySelector('svg').cloneNode(true));
+
+      const progress = document.createElement('span');
+      progress.className = 'achievementRailProgress';
+      progress.textContent = `${categoryData.progress}/${categoryData.goal}`;
+      progress.setAttribute('aria-label', `${categoryData.progress} of ${categoryData.goal} badge steps completed`);
+      button.appendChild(progress);
+
+      const tooltip = document.createElement('span');
+      tooltip.className = 'achievementRailTooltip';
+      tooltip.textContent = categoryData.label;
+      button.appendChild(tooltip);
+
+      button.addEventListener('click', ()=>{
+        showAchievementAreas(category);
+      });
+
+      railButtons.appendChild(button);
+    });
+  }
+
+  function showAchievementRail(){
+    const rail = document.getElementById('achievementRail');
+    if(rail) rail.classList.add('isVisible');
+  }
+
+  function hideAchievementRail(){
+    const rail = document.getElementById('achievementRail');
+    const card = document.getElementById('achievementMapCard');
+    if(rail) rail.classList.remove('isVisible');
+    if(card) card.classList.remove('isVisible');
+    document.querySelectorAll('.achievementRailButton').forEach((button)=>{
+      button.classList.remove('isActive');
+    });
+    activeAchievementCategory = null;
+  }
+
+  function clearAchievementMarkers(){
+    achievementMarkers.forEach((marker)=>marker.remove());
+    achievementMarkers = [];
+  }
+
+  function showAchievementAreas(category){
+    const categoryData = achievementCategories[category];
+    if(!categoryData || !map) return;
+
+    activeAchievementCategory = category;
+    clearAchievementMarkers();
+
+    document.querySelectorAll('.achievementRailButton').forEach((button)=>{
+      button.classList.toggle('isActive', button.dataset.category === category);
+    });
+
+    const center = latestUserPosition || map.getCenter().toArray();
+    const latitudeRadians = center[1] * Math.PI / 180;
+    const distances = [260, 420, 570];
+    const bearings = [20, 142, 258];
+
+    categoryData.places.forEach((place, index)=>{
+      const bearing = bearings[index] * Math.PI / 180;
+      const north = Math.cos(bearing) * distances[index];
+      const east = Math.sin(bearing) * distances[index];
+      const latitude = center[1] + (north / 6371008.8) * (180 / Math.PI);
+      const longitude = center[0]
+        + (east / (6371008.8 * Math.cos(latitudeRadians))) * (180 / Math.PI);
+
+      const markerElement = document.createElement('button');
+      markerElement.className = 'achievementAreaMarker';
+      markerElement.type = 'button';
+      markerElement.style.setProperty('--accent', categoryData.accent);
+      markerElement.setAttribute('aria-label', `${place[0]}: ${place[1]}`);
+      markerElement.innerHTML = `<span>${index + 1}</span>`;
+      markerElement.addEventListener('click', ()=>{
+        showAchievementCard(categoryData, place, index);
+      });
+
+      const marker = new maplibregl.Marker({
+        element: markerElement,
+        anchor: 'center'
+      })
+        .setLngLat([longitude, latitude])
+        .addTo(map);
+
+      achievementMarkers.push(marker);
+    });
+
+    showAchievementCard(categoryData, categoryData.places[0], 0);
+    map.easeTo({
+      center,
+      zoom: Math.max(map.getZoom(), 15),
+      duration: 650
+    });
+  }
+
+  function showAchievementCard(categoryData, place, index){
+    const card = document.getElementById('achievementMapCard');
+    if(!card) return;
+
+    card.style.setProperty('--accent', categoryData.accent);
+    document.getElementById('achievementCardEyebrow').textContent = `${categoryData.label} achievement area`;
+    document.getElementById('achievementCardTitle').textContent = place[0];
+    document.getElementById('achievementCardDescription').textContent = place[1];
+    document.getElementById('achievementCardProgressText').textContent =
+      `${categoryData.progress} of ${categoryData.goal} badge steps complete · Nearby stop ${index + 1} of ${categoryData.places.length}`;
+    card.classList.add('isVisible');
   }
 
   function emptyFeatureCollection(){
@@ -284,7 +510,9 @@
     const mainSettingsBtn = document.getElementById('mainSettingsBtn');
     const utilityButtons = document.querySelectorAll('.utilityButton');
     const loading = document.getElementById('loadingOverlay');
+    const closeAchievementCard = document.getElementById('closeAchievementCard');
 
+    buildAchievementRail();
     if(mapLocationBtn) mapLocationBtn.addEventListener('click', centerOnUserLocation);
     if(mapModeBtn) mapModeBtn.addEventListener('click', closeMenuForMap);
     if(storyModeBtn) storyModeBtn.addEventListener('click', ()=>{
@@ -308,6 +536,11 @@
         setRadialMessage(`${button.dataset.actionLabel} · image and action to follow`);
       });
     });
+    if(closeAchievementCard){
+      closeAchievementCard.addEventListener('click', ()=>{
+        document.getElementById('achievementMapCard')?.classList.remove('isVisible');
+      });
+    }
     if(loading){
       loading.addEventListener('click', skipLoading);
       loading.addEventListener('keydown', (event)=>{

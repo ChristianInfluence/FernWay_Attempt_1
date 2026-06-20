@@ -40,6 +40,22 @@
       </svg>
     </button>
 
+    <aside id="achievementRail" class="achievementRail" aria-label="Achievement categories">
+      <p class="achievementRailTitle">Nearby achievements</p>
+      <div id="achievementRailButtons" class="achievementRailButtons"></div>
+    </aside>
+
+    <section id="achievementMapCard" class="achievementMapCard" aria-live="polite">
+      <button id="closeAchievementCard" class="achievementCardClose" type="button" aria-label="Close achievement details">×</button>
+      <p id="achievementCardEyebrow" class="achievementCardEyebrow">Achievement area</p>
+      <h2 id="achievementCardTitle">Choose a category</h2>
+      <p id="achievementCardDescription">Select an icon to reveal nearby places where you can work toward badges.</p>
+      <div class="achievementCardProgress">
+        <span id="achievementCardDiamond" class="achievementCardDiamond">◆</span>
+        <span id="achievementCardProgressText">Progress will appear here</span>
+      </div>
+    </section>
+
     <header class="appHeader">
       <a class="brand" href="/" aria-label="FernWay home">
         <span class="brandLogoFrame" aria-hidden="true">
@@ -136,7 +152,7 @@
         <span class="connectorSpoke" style="--angle: 315deg; --accent: #c9a9ff" aria-hidden="true"></span>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-flames.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 0deg; --accent: #ff704f" type="button" aria-label="Flame achievements" data-action-label="Flame achievements" data-image-ref="JPEG / PNG TO FOLLOW: flames">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 0deg; --accent: #ff704f" type="button" aria-label="Flame achievements" data-category="flames" data-action-label="Flame achievements" data-image-ref="JPEG / PNG TO FOLLOW: flames">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <path d="M35 6c3 11-7 13-4 24 3-4 7-7 8-13 9 8 14 17 11 27-3 10-11 15-20 15S12 53 12 42c0-9 6-17 14-25-1 9 2 13 5 15-1-9 8-14 4-26z"></path>
             <path class="iconDetail" d="M34 35c5 5 7 9 5 14-1 4-4 6-8 6-5 0-8-4-8-8 0-5 4-9 8-13 0 5 1 7 3 8-1-3-1-5 0-7z"></path>
@@ -145,7 +161,7 @@
         </button>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-palettes.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 45deg; --accent: #f2a8ff" type="button" aria-label="Palette achievements" data-action-label="Palette achievements" data-image-ref="JPEG / PNG TO FOLLOW: palettes">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 45deg; --accent: #f2a8ff" type="button" aria-label="Palette achievements" data-category="palettes" data-action-label="Palette achievements" data-image-ref="JPEG / PNG TO FOLLOW: palettes">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <path d="M32 8C18 8 7 18 7 31c0 12 9 23 22 24 5 0 8-3 6-7-1-3 1-6 5-6h5c8 0 13-6 12-13C55 16 45 8 32 8z"></path>
             <circle class="iconDetail" cx="20" cy="25" r="3"></circle>
@@ -157,7 +173,7 @@
         </button>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-vines.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 90deg; --accent: #69db83" type="button" aria-label="Vine achievements" data-action-label="Vine achievements" data-image-ref="JPEG / PNG TO FOLLOW: vines">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 90deg; --accent: #69db83" type="button" aria-label="Vine achievements" data-category="vines" data-action-label="Vine achievements" data-image-ref="JPEG / PNG TO FOLLOW: vines">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <path d="M18 57c21-12 27-29 24-49M28 43c-10 1-15-5-15-13 9-1 15 4 15 13zM39 28c10 0 15-6 14-15-9 0-15 6-14 15zM24 51c-8 0-12-4-12-10 7-1 12 3 12 10z"></path>
           </svg>
@@ -165,7 +181,7 @@
         </button>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-locks.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 135deg; --accent: #79b7ff" type="button" aria-label="Lock achievements" data-action-label="Lock achievements" data-image-ref="JPEG / PNG TO FOLLOW: locks">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 135deg; --accent: #79b7ff" type="button" aria-label="Lock achievements" data-category="locks" data-action-label="Lock achievements" data-image-ref="JPEG / PNG TO FOLLOW: locks">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <rect x="13" y="27" width="38" height="29" rx="7"></rect>
             <path d="M21 27v-8c0-8 5-13 11-13s11 5 11 13v8"></path>
@@ -175,7 +191,7 @@
         </button>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-hammers.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 180deg; --accent: #f5b85c" type="button" aria-label="Hammer achievements" data-action-label="Hammer achievements" data-image-ref="JPEG / PNG TO FOLLOW: hammers">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 180deg; --accent: #f5b85c" type="button" aria-label="Hammer achievements" data-category="hammers" data-action-label="Hammer achievements" data-image-ref="JPEG / PNG TO FOLLOW: hammers">
           <svg class="woodenMalletIcon" viewBox="0 0 64 64" aria-hidden="true">
             <path class="malletHead" d="M7 12l37-5 5 20-37 5z"></path>
             <path class="malletEnd" d="M44 7l9 4 4 15-8 1z"></path>
@@ -188,7 +204,7 @@
         </button>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-scales.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 225deg; --accent: #e8d98c" type="button" aria-label="Scales of justice achievements" data-action-label="Scales achievements" data-image-ref="JPEG / PNG TO FOLLOW: scales of justice">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 225deg; --accent: #e8d98c" type="button" aria-label="Scales of justice achievements" data-category="scales" data-action-label="Scales achievements" data-image-ref="JPEG / PNG TO FOLLOW: scales of justice">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <path d="M32 8v44M19 55h26M14 18h36M32 12l-18 6M32 12l18 6"></path>
             <path d="M14 18L7 35h14L14 18zM50 18l-7 17h14l-7-17z"></path>
@@ -198,7 +214,7 @@
         </button>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-vials.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 270deg; --accent: #73dfdf" type="button" aria-label="Vial achievements" data-action-label="Vial achievements" data-image-ref="JPEG / PNG TO FOLLOW: vials">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 270deg; --accent: #73dfdf" type="button" aria-label="Vial achievements" data-category="vials" data-action-label="Vial achievements" data-image-ref="JPEG / PNG TO FOLLOW: vials">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <path d="M23 8h18M27 8v15L14 48c-3 6 1 9 7 9h22c6 0 10-3 7-9L37 23V8"></path>
             <path class="iconDetail" d="M20 43h24M23 37c6 3 12-3 18 0"></path>
@@ -209,7 +225,7 @@
         </button>
 
         <!-- IMAGE REFERENCE: assets/ui/achievement-scrolls.png — JPEG / PNG TO FOLLOW -->
-        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 315deg; --accent: #c9a9ff" type="button" aria-label="Scroll achievements" data-action-label="Scroll achievements" data-image-ref="JPEG / PNG TO FOLLOW: scrolls">
+        <button class="radialButton utilityButton spokePrimary achievementButton" style="--angle: 315deg; --accent: #c9a9ff" type="button" aria-label="Scroll achievements" data-category="scrolls" data-action-label="Scroll achievements" data-image-ref="JPEG / PNG TO FOLLOW: scrolls">
           <svg viewBox="0 0 64 64" aria-hidden="true">
             <path d="M17 10h31c5 0 8 4 8 9s-3 9-8 9V54H19V20c0-6-3-10-8-10z"></path>
             <path d="M17 10c5 0 8 4 8 9s-3 9-8 9H8c0-5 3-9 8-9M27 34h14M27 42h14"></path>

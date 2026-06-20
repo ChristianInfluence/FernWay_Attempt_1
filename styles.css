@@ -251,6 +251,270 @@ button, a { font: inherit; }
 	stroke-linejoin: round;
 }
 
+.achievementRail {
+	position: fixed;
+	top: 50%;
+	right: 68px;
+	z-index: 680;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	max-height: calc(100vh - 140px);
+	overflow-y: auto;
+	padding: 12px 9px;
+	border: 1px solid var(--panel-border);
+	border-radius: 22px;
+	background: rgba(10, 13, 35, 0.88);
+	box-shadow: 0 20px 48px rgba(0, 0, 0, 0.34);
+	backdrop-filter: blur(18px) saturate(135%);
+	opacity: 0;
+	visibility: hidden;
+	transform: translate(18px, -50%);
+	transition: opacity 220ms ease, transform 260ms ease, visibility 220ms ease;
+	scrollbar-width: none;
+}
+
+.achievementRail::-webkit-scrollbar { display: none; }
+
+.achievementRail.isVisible {
+	opacity: 1;
+	visibility: visible;
+	transform: translate(0, -50%);
+}
+
+.achievementRailTitle {
+	width: 54px;
+	margin: 0;
+	color: rgba(230, 235, 255, 0.58);
+	font-size: 8px;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	line-height: 1.35;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.achievementRailButtons {
+	display: grid;
+	gap: 8px;
+}
+
+.achievementRailButton {
+	position: relative;
+	display: grid;
+	width: 50px;
+	height: 50px;
+	place-items: center;
+	padding: 0;
+	border: 1px solid color-mix(in srgb, var(--accent) 42%, rgba(255, 255, 255, 0.15));
+	border-radius: 50%;
+	background:
+		radial-gradient(
+			circle at 35% 28%,
+			color-mix(in srgb, var(--accent) 24%, rgba(54, 59, 129, 0.95)),
+			rgba(13, 16, 49, 0.98) 72%
+		);
+	color: var(--accent);
+	box-shadow:
+		0 8px 20px rgba(0, 0, 0, 0.34),
+		0 0 0 3px color-mix(in srgb, var(--accent) 6%, transparent);
+	cursor: pointer;
+	transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+
+.achievementRailButton:hover,
+.achievementRailButton:focus-visible,
+.achievementRailButton.isActive {
+	border-color: color-mix(in srgb, var(--accent) 85%, white);
+	box-shadow:
+		0 10px 24px rgba(0, 0, 0, 0.4),
+		0 0 0 5px color-mix(in srgb, var(--accent) 15%, transparent),
+		0 0 22px color-mix(in srgb, var(--accent) 20%, transparent);
+	outline: none;
+	transform: scale(1.06);
+}
+
+.achievementRailButton svg {
+	width: 34px;
+	height: 34px;
+	overflow: visible;
+	fill: color-mix(in srgb, var(--accent) 12%, transparent);
+	stroke: currentColor;
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.achievementRailProgress {
+	position: absolute;
+	right: -6px;
+	bottom: -4px;
+	display: grid;
+	min-width: 24px;
+	height: 24px;
+	place-items: center;
+	padding: 0 4px;
+	border: 1px solid color-mix(in srgb, var(--accent) 72%, white);
+	border-radius: 999px;
+	background: #111331;
+	color: color-mix(in srgb, var(--accent) 78%, white);
+	font-size: 8px;
+	font-weight: 900;
+	box-shadow: 0 5px 12px rgba(0, 0, 0, 0.42);
+}
+
+.achievementRailProgress::before {
+	content: "◆";
+	margin-right: 2px;
+	font-size: 6px;
+}
+
+.achievementRailTooltip {
+	position: absolute;
+	top: 50%;
+	right: calc(100% + 10px);
+	padding: 5px 8px;
+	border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+	border-radius: 999px;
+	background: rgba(10, 12, 36, 0.92);
+	color: color-mix(in srgb, var(--accent) 72%, white);
+	font-size: 9px;
+	font-weight: 800;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	opacity: 0;
+	transform: translate(5px, -50%);
+	pointer-events: none;
+	transition: opacity 140ms ease, transform 140ms ease;
+}
+
+.achievementRailButton:hover .achievementRailTooltip,
+.achievementRailButton:focus-visible .achievementRailTooltip {
+	opacity: 1;
+	transform: translate(0, -50%);
+}
+
+.achievementMapCard {
+	position: fixed;
+	left: 20px;
+	bottom: 22px;
+	z-index: 670;
+	width: min(360px, calc(100vw - 40px));
+	padding: 20px;
+	border: 1px solid color-mix(in srgb, var(--accent, #74d6a0) 35%, rgba(255, 255, 255, 0.1));
+	border-radius: 20px;
+	background: rgba(10, 14, 26, 0.91);
+	color: var(--ink);
+	box-shadow: 0 22px 52px rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(20px) saturate(130%);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(14px);
+	transition: opacity 200ms ease, transform 240ms ease, visibility 200ms ease;
+}
+
+.achievementMapCard.isVisible {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.achievementMapCard h2 {
+	margin: 4px 32px 8px 0;
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 25px;
+	font-weight: 500;
+}
+
+.achievementMapCard > p:not(.achievementCardEyebrow) {
+	margin: 0;
+	color: #b5c0ba;
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.achievementCardEyebrow {
+	margin: 0;
+	color: var(--accent, #74d6a0);
+	font-size: 9px;
+	font-weight: 900;
+	letter-spacing: 0.13em;
+	text-transform: uppercase;
+}
+
+.achievementCardClose {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	display: grid;
+	width: 30px;
+	height: 30px;
+	place-items: center;
+	padding: 0;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.05);
+	color: #d8dfda;
+	font-size: 20px;
+	cursor: pointer;
+}
+
+.achievementCardProgress {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 15px;
+	padding-top: 13px;
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
+	color: #dce5df;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.achievementCardDiamond {
+	color: var(--accent, #74d6a0);
+	text-shadow: 0 0 12px color-mix(in srgb, var(--accent, #74d6a0) 55%, transparent);
+}
+
+.achievementAreaMarker {
+	position: relative;
+	display: grid;
+	width: 36px;
+	height: 36px;
+	place-items: center;
+	padding: 0;
+	border: 2px solid color-mix(in srgb, var(--accent) 78%, white);
+	border-radius: 50%;
+	background:
+		radial-gradient(circle, color-mix(in srgb, var(--accent) 45%, #24285e), #101331 72%);
+	color: white;
+	font-size: 11px;
+	font-weight: 900;
+	box-shadow:
+		0 8px 18px rgba(0, 0, 0, 0.4),
+		0 0 0 7px color-mix(in srgb, var(--accent) 14%, transparent),
+		0 0 24px color-mix(in srgb, var(--accent) 30%, transparent);
+	cursor: pointer;
+}
+
+.achievementAreaMarker::after {
+	content: "◆";
+	position: absolute;
+	right: -5px;
+	bottom: -5px;
+	display: grid;
+	width: 16px;
+	height: 16px;
+	place-items: center;
+	border: 1px solid color-mix(in srgb, var(--accent) 75%, white);
+	border-radius: 50%;
+	background: #111331;
+	color: var(--accent);
+	font-size: 7px;
+}
+
 #menuOverlay {
 	position: fixed;
 	inset: 0;
@@ -876,6 +1140,57 @@ button, a { font: inherit; }
 	.mapLocationButton {
 		right: 10px;
 		bottom: 160px;
+	}
+
+	.achievementRail {
+		top: auto;
+		right: 76px;
+		bottom: 78px;
+		left: 10px;
+		flex-direction: row;
+		justify-content: flex-start;
+		overflow-x: auto;
+		padding: 9px 12px;
+		border-radius: 18px;
+		transform: translateY(14px);
+		scrollbar-width: none;
+	}
+
+	.achievementRail::-webkit-scrollbar { display: none; }
+
+	.achievementRail.isVisible { transform: translateY(0); }
+	.achievementRailTitle { display: none; }
+
+	.achievementRailButtons {
+		display: flex;
+		gap: 10px;
+	}
+
+	.achievementRailButton {
+		width: 44px;
+		height: 44px;
+		flex: 0 0 44px;
+	}
+
+	.achievementRailButton svg {
+		width: 30px;
+		height: 30px;
+	}
+
+	.achievementRailTooltip { display: none; }
+
+	.achievementRailProgress {
+		right: -5px;
+		min-width: 21px;
+		height: 21px;
+		font-size: 7px;
+	}
+
+	.achievementMapCard {
+		right: 10px;
+		bottom: 146px;
+		left: 10px;
+		width: auto;
 	}
 
 	.skipIntro {
