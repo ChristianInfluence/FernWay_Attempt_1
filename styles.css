@@ -213,12 +213,12 @@ button, a { font: inherit; }
 
 .mapLocationButton {
 	position: fixed;
-	right: 20px;
-	bottom: 118px;
+	right: 10px;
+	bottom: 100px;
 	z-index: 650;
 	display: grid;
-	width: 46px;
-	height: 46px;
+	width: 40px;
+	height: 40px;
 	place-items: center;
 	padding: 0;
 	border: 1px solid var(--panel-border);
@@ -470,8 +470,8 @@ button, a { font: inherit; }
 	}
 
 	.mapLocationButton {
-		right: 14px;
-		bottom: 132px;
+		right: 10px;
+		bottom: 160px;
 	}
 
 	.skipIntro {
