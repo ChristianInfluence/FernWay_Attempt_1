@@ -205,6 +205,20 @@
     startLocationTracking();
   }
 
+  function closeMenuForMap(){
+    const menu = document.getElementById('menuOverlay');
+    if(menu) menu.classList.remove('isVisible');
+
+    window.setTimeout(() => {
+      if(map) map.resize();
+    }, 250);
+  }
+
+  function setRadialMessage(message){
+    const radialMessage = document.getElementById('radialMessage');
+    if(radialMessage) radialMessage.textContent = message;
+  }
+
   function emptyFeatureCollection(){
     return {
       type: 'FeatureCollection',
@@ -242,17 +256,31 @@
   }
 
   document.addEventListener('DOMContentLoaded', ()=>{
-    const toggleBtn = document.getElementById('toggleOverlayBtn');
-    const centerLocationBtn = document.getElementById('centerLocationBtn');
     const mapLocationBtn = document.getElementById('mapLocationBtn');
-    const closeBtn = document.getElementById('closeMenuBtn');
-    const menu = document.getElementById('menuOverlay');
+    const mapModeBtn = document.getElementById('mapModeBtn');
+    const storyModeBtn = document.getElementById('storyModeBtn');
+    const mainSettingsBtn = document.getElementById('mainSettingsBtn');
+    const utilityButtons = document.querySelectorAll('.utilityButton');
     const loading = document.getElementById('loadingOverlay');
 
-    if(toggleBtn) toggleBtn.addEventListener('click', toggleSampleOverlay);
-    if(centerLocationBtn) centerLocationBtn.addEventListener('click', centerOnUserLocation);
     if(mapLocationBtn) mapLocationBtn.addEventListener('click', centerOnUserLocation);
-    if(closeBtn) closeBtn.addEventListener('click', ()=>{ if(menu) menu.classList.remove('isVisible') });
+    if(mapModeBtn) mapModeBtn.addEventListener('click', closeMenuForMap);
+    if(storyModeBtn) storyModeBtn.addEventListener('click', ()=>{
+      setRadialMessage('Story mode · artwork and experience to follow');
+    });
+    if(mainSettingsBtn) mainSettingsBtn.addEventListener('click', ()=>{
+      mainSettingsBtn.classList.toggle('isActive');
+      setRadialMessage(
+        mainSettingsBtn.classList.contains('isActive')
+          ? 'Player and main settings selected'
+          : 'Choose your path'
+      );
+    });
+    utilityButtons.forEach((button)=>{
+      button.addEventListener('click', ()=>{
+        setRadialMessage(`${button.dataset.actionLabel} · image and action to follow`);
+      });
+    });
     if(loading){
       loading.addEventListener('click', skipLoading);
       loading.addEventListener('keydown', (event)=>{
