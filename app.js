@@ -353,7 +353,6 @@
 
     mainSettingsBtn.classList.add('isActive');
     radialMenu.classList.add('playerMenuOpen');
-    setPlayerMenuStatus('Player menu');
   }
 
   function closePlayerQuickMenu(){
@@ -362,11 +361,6 @@
     if(radialMenu) radialMenu.classList.remove('playerMenuOpen');
     if(mainSettingsBtn) mainSettingsBtn.classList.remove('isActive');
     setRadialMessage('Choose your path');
-  }
-
-  function setPlayerMenuStatus(message){
-    const status = document.getElementById('playerMenuStatus');
-    if(status) status.textContent = message;
   }
 
   function buildAchievementRail(){
@@ -563,12 +557,12 @@
     if(playerExitBtn) playerExitBtn.addEventListener('click', closePlayerQuickMenu);
     if(playerSettingsBtn){
       playerSettingsBtn.addEventListener('click', ()=>{
-        setPlayerMenuStatus('Settings · preferences and self-care options to follow');
+        setRadialMessage('Settings · preferences and self-care options to follow');
       });
     }
     playerActionButtons.forEach((button)=>{
       button.addEventListener('click', ()=>{
-        setPlayerMenuStatus(`${button.dataset.playerAction} · panel to follow`);
+        setRadialMessage(`${button.dataset.playerAction} · panel to follow`);
       });
     });
     utilityButtons.forEach((button)=>{

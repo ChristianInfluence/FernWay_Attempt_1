@@ -752,6 +752,17 @@ button, a { font: inherit; }
 	transition: opacity 140ms ease, transform 140ms ease;
 }
 
+.playerMiniButton span {
+	z-index: 30;
+	bottom: auto;
+	top: -34px;
+}
+
+.playerMiniButton span::after {
+	top: 100%;
+	border-top-color: rgba(9, 12, 36, 0.92);
+}
+
 .playerMiniButton span::after,
 .playerActionButton span::after {
 	content: "";
@@ -833,22 +844,6 @@ button, a { font: inherit; }
 .selfCareAction { color: #9de4ba; }
 .messagesAction { color: #9fc7ff; }
 .inventoryAction { color: #e4b9ff; }
-
-.playerMenuStatus {
-	position: fixed;
-	top: 262px;
-	right: 35px;
-	z-index: 15;
-	width: 176px;
-	margin: 0;
-	color: rgba(226, 232, 255, 0.62);
-	font-size: 9px;
-	font-weight: 800;
-	letter-spacing: 0.1em;
-	text-align: center;
-	text-transform: uppercase;
-	pointer-events: none;
-}
 
 .primaryRadialButton.isDocked {
 	position: fixed;
@@ -1512,13 +1507,6 @@ button, a { font: inherit; }
 	}
 
 	.playerMiniButton span { display: block; }
-
-	.playerMenuStatus {
-		top: 257px;
-		right: 10px;
-		left: 10px;
-		width: auto;
-	}
 
 	.modeButton svg {
 		width: 51px;
