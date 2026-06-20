@@ -154,7 +154,10 @@
               </div>
             </div>
             <p class="settingsInstruction">Each leaf is an achievement. Use its plus button to grow a new branch from it, or begin with a blank leaf.</p>
-            <button id="addBlankTaskBtn" class="settingsSecondaryButton" type="button">＋ Create a blank achievement</button>
+            <div class="taskTreeCreateActions">
+              <button id="addBlankBranchBtn" class="settingsSecondaryButton" type="button">＋ New branch</button>
+              <button id="addBlankTaskBtn" class="settingsSecondaryButton" type="button">＋ New task leaf</button>
+            </div>
             <div id="taskTree" class="taskTree"></div>
           </section>
 
@@ -169,7 +172,14 @@
             <form id="taskEditorForm" class="taskEditorForm">
               <input id="taskId" type="hidden">
               <input id="taskParent" type="hidden">
+              <input id="taskParentName" type="hidden">
               <input id="taskCategory" type="hidden">
+              <input id="taskNodeType" type="hidden" value="task">
+
+              <div class="taskEditorContext settingsWideField">
+                <span id="taskNodeTypeBadge">Task leaf</span>
+                <p id="taskParentLabel">Root of section</p>
+              </div>
 
               <label class="settingsWideField">
                 Title
@@ -190,7 +200,7 @@
                 <span>Leaf image preview</span>
               </div>
 
-              <label class="mapItemToggle settingsWideField">
+              <label class="mapItemToggle settingsWideField taskOnlyField">
                 <input id="taskIsMapItem" type="checkbox">
                 <span>
                   <strong>Show this achievement on the map</strong>
@@ -198,7 +208,7 @@
                 </span>
               </label>
 
-              <div id="taskCoordinates" class="taskCoordinates settingsWideField" hidden>
+              <div id="taskCoordinates" class="taskCoordinates settingsWideField taskOnlyField" hidden>
                 <label>
                   Latitude
                   <input id="taskLatitude" type="number" min="-90" max="90" step="any" placeholder="37.7749">
@@ -209,6 +219,84 @@
                 </label>
                 <button id="useCurrentMapCenter" class="settingsSecondaryButton" type="button">Use current map center</button>
                 <button id="pickTaskCoordinates" class="settingsSecondaryButton" type="button">Pick on map</button>
+              </div>
+
+              <div id="taskProgressionFields" class="taskProgressionFields settingsWideField taskOnlyField">
+                <label>
+                  Approval authority for completion
+                  <select id="taskApprovalRank">
+                    <option value="none">No approval required</option>
+                    <option value="guide">Guide</option>
+                    <option value="mentor">Mentor</option>
+                    <option value="section-leader">Section leader</option>
+                    <option value="clan-leader">Clan leader</option>
+                    <option value="administrator">Administrator</option>
+                  </select>
+                </label>
+
+                <label>
+                  Points toward section
+                  <input id="taskSectionPoints" type="number" min="0" step="1" value="0">
+                </label>
+
+                <label>
+                  Points toward subsection
+                  <input id="taskSubsectionPoints" type="number" min="0" step="1" value="0">
+                </label>
+
+                <label>
+                  Unlock type
+                  <select id="taskUnlockType">
+                    <option value="none">Null — unlock nothing</option>
+                    <option value="sub-app">Sub app</option>
+                    <option value="section">Section or subsection</option>
+                    <option value="leadership">Leadership opportunity</option>
+                    <option value="nodes">Other branches or tasks</option>
+                  </select>
+                </label>
+
+                <label id="taskUnlockTargetsField" class="settingsWideField">
+                  Unlocks these branches or tasks
+                  <select id="taskUnlockTargets" multiple size="6"></select>
+                  <small>Hold Command/Ctrl to select more than one.</small>
+                </label>
+
+                <label>
+                  Next task, if applicable
+                  <select id="taskNextTask">
+                    <option value="">None</option>
+                  </select>
+                  <button id="createNextTaskBtn" class="settingsInlineAdd" type="button">＋ Create next task</button>
+                </label>
+
+                <label>
+                  Next layer, if applicable
+                  <select id="taskNextLayer">
+                    <option value="">None</option>
+                  </select>
+                  <button id="createNextLayerBtn" class="settingsInlineAdd" type="button">＋ Create next layer</button>
+                </label>
+
+                <label class="taskBooleanOption">
+                  <input id="taskLeadershipOpportunity" type="checkbox">
+                  <span>Creates a leadership opportunity</span>
+                </label>
+
+                <label class="taskBooleanOption">
+                  <input id="taskEndTask" type="checkbox">
+                  <span>End task</span>
+                </label>
+
+                <label class="taskBooleanOption">
+                  <input id="taskEndLayer" type="checkbox">
+                  <span>End layer</span>
+                </label>
+
+                <fieldset class="taskVisibilityField">
+                  <legend>Leaf hidden?</legend>
+                  <label><input type="radio" name="taskHidden" value="no" checked> No — visible</label>
+                  <label><input type="radio" name="taskHidden" value="yes"> Yes — hold until later activation</label>
+                </fieldset>
               </div>
 
               <div class="settingsFormActions settingsWideField">

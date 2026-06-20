@@ -19,6 +19,7 @@
   let coordinateMarker = null;
   let coordinatePickMode = false;
   let coordinatePickTarget = 'panel';
+  let pendingNextLink = null;
 
   const taskStorageKey = 'fernway-achievement-tasks-v1';
   const profileStorageKey = 'fernway-profile-v1';
@@ -117,7 +118,8 @@
 
   function loadLocalData(){
     try {
-      achievementTasks = JSON.parse(localStorage.getItem(taskStorageKey) || '[]');
+      achievementTasks = JSON.parse(localStorage.getItem(taskStorageKey) || '[]')
+        .map(normalizeAchievementNode);
       profileData = JSON.parse(localStorage.getItem(profileStorageKey) || '{}');
     } catch {
       achievementTasks = [];
@@ -140,6 +142,26 @@
 
   function createTaskId(){
     return `achievement-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function normalizeAchievementNode(node){
+    return {
+      ...node,
+      nodeType: node.nodeType === 'branch' ? 'branch' : 'task',
+      parentId: node.parentId || '',
+      parentLabel: node.parentLabel || node.parent || '',
+      approvalRank: node.approvalRank || 'none',
+      sectionPoints: Number(node.sectionPoints) || 0,
+      subsectionPoints: Number(node.subsectionPoints) || 0,
+      unlockType: node.unlockType || 'none',
+      unlockTargets: Array.isArray(node.unlockTargets) ? node.unlockTargets : [],
+      leadershipOpportunity: Boolean(node.leadershipOpportunity),
+      endTask: Boolean(node.endTask),
+      nextTaskId: node.nextTaskId || '',
+      endLayer: Boolean(node.endLayer),
+      nextLayerId: node.nextLayerId || '',
+      hidden: Boolean(node.hidden)
+    };
   }
 
   function formatCoordinates(longitude, latitude){
@@ -509,7 +531,9 @@
 
     const customPlaces = achievementTasks
       .filter((task)=>{
-        return task.category === category
+        return task.nodeType === 'task'
+          && !task.hidden
+          && task.category === category
           && task.isMapItem
           && Number.isFinite(task.latitude)
           && Number.isFinite(task.longitude);
@@ -720,7 +744,7 @@
       if(sourceButton) button.appendChild(sourceButton.querySelector('svg').cloneNode(true));
 
       const text = document.createElement('span');
-      text.innerHTML = `<strong>${categoryData.label}</strong><small>${achievementTasks.filter((task)=>task.category === category).length} custom achievements</small>`;
+      text.innerHTML = `<strong>${categoryData.label}</strong><small>${achievementTasks.filter((task)=>task.category === category).length} branches and tasks</small>`;
       button.appendChild(text);
       button.addEventListener('click', ()=>{
         selectedTaskCategory = category;
@@ -767,7 +791,7 @@
         const content = document.createElement('div');
         content.className = 'taskLibraryContent';
         content.innerHTML = `
-          <p>${categoryData?.label || task.category}${task.isMapItem ? ' · Map item' : ''}</p>
+          <p>${categoryData?.label || task.category} · ${task.nodeType === 'branch' ? 'Branch' : 'Task'}${task.isMapItem ? ' · Map item' : ''}${task.hidden ? ' · Hidden' : ''}</p>
           <h4>${escapeHtml(task.title)}</h4>
           <span>${escapeHtml(task.description)}</span>
         `;
@@ -795,67 +819,147 @@
       id: `seed-${category}-${index}`,
       title: place[0],
       description: place[1],
+      category,
+      nodeType: 'task',
+      parentId: '',
       isSeed: true
     }));
-    const customLeaves = achievementTasks.filter((task)=>task.category === category);
+    const customNodes = achievementTasks.filter((task)=>task.category === category);
+    const allNodes = [...seedLeaves, ...customNodes];
+    const nodeById = new Map(allNodes.map((node)=>[node.id, node]));
+    const childrenByParent = new Map();
 
-    [...seedLeaves, ...customLeaves].forEach((leaf)=>{
-      const branch = document.createElement('article');
-      branch.className = 'taskTreeLeaf';
-      branch.style.setProperty('--accent', categoryData.accent);
+    customNodes.forEach((node)=>{
+      const parentId = node.parentId && nodeById.has(node.parentId) ? node.parentId : '';
+      const children = childrenByParent.get(parentId) || [];
+      children.push(node);
+      childrenByParent.set(parentId, children);
+    });
 
-      const visual = document.createElement('div');
-      visual.className = 'taskTreeLeafVisual';
-      if(leaf.image){
-        const image = document.createElement('img');
-        image.src = leaf.image;
-        image.alt = '';
-        visual.appendChild(image);
-      } else {
-        visual.textContent = '◆';
-      }
+    const roots = [
+      ...seedLeaves,
+      ...(childrenByParent.get('') || [])
+    ];
 
-      const content = document.createElement('div');
-      content.innerHTML = `<strong>${escapeHtml(leaf.title)}</strong><span>${escapeHtml(leaf.description)}</span>`;
-
-      const actions = document.createElement('div');
-      actions.className = 'taskTreeLeafActions';
-
-      const add = document.createElement('button');
-      add.className = 'taskLeafAddButton';
-      add.type = 'button';
-      add.setAttribute('aria-label', `Add a branch from ${leaf.title}`);
-      add.textContent = '+';
-      add.addEventListener('click', ()=>{
-        openTaskEditor(null, category, leaf.title);
-      });
-      actions.appendChild(add);
-
-      if(!leaf.isSeed){
-        const edit = document.createElement('button');
-        edit.className = 'taskLeafEditButton';
-        edit.type = 'button';
-        edit.textContent = 'Edit';
-        edit.addEventListener('click', ()=>openTaskEditor(leaf));
-        actions.appendChild(edit);
-      }
-
-      branch.append(visual, content, actions);
-      tree.appendChild(branch);
+    roots.forEach((node)=>{
+      tree.appendChild(createTaskTreeNode(node, 0, childrenByParent, categoryData));
     });
   }
 
-  function openTaskEditor(task = null, category = selectedTaskCategory, parent = ''){
+  function createTaskTreeNode(node, depth, childrenByParent, categoryData){
+    const wrapper = document.createElement('div');
+    wrapper.className = 'taskTreeNode';
+    wrapper.style.setProperty('--tree-depth', depth);
+
+    const item = document.createElement('article');
+    item.className = `taskTreeLeaf is${node.nodeType === 'branch' ? 'Branch' : 'Task'}`;
+    if(node.hidden) item.classList.add('isHiddenLeaf');
+    item.style.setProperty('--accent', categoryData.accent);
+
+    const visual = document.createElement('div');
+    visual.className = 'taskTreeLeafVisual';
+    if(node.image){
+      const image = document.createElement('img');
+      image.src = node.image;
+      image.alt = '';
+      visual.appendChild(image);
+    } else {
+      visual.textContent = node.nodeType === 'branch' ? '⑂' : '◆';
+    }
+
+    const content = document.createElement('div');
+    content.className = 'taskTreeLeafContent';
+    const badges = [
+      node.nodeType === 'branch' ? 'Branch' : 'Task',
+      node.hidden ? 'Hidden' : '',
+      node.nodeType === 'task' && node.unlockTargets?.length ? `Unlocks ${node.unlockTargets.length}` : ''
+    ].filter(Boolean).map((badge)=>`<em>${escapeHtml(badge)}</em>`).join('');
+    content.innerHTML = `
+      <div class="taskTreeBadges">${badges}</div>
+      <strong>${escapeHtml(node.title)}</strong>
+      <span>${escapeHtml(node.description)}</span>
+    `;
+
+    const actions = document.createElement('div');
+    actions.className = 'taskTreeLeafActions';
+
+    const addTask = document.createElement('button');
+    addTask.className = 'taskLeafAddButton';
+    addTask.type = 'button';
+    addTask.title = 'Add task leaf';
+    addTask.setAttribute('aria-label', `Add a task under ${node.title}`);
+    addTask.textContent = '+ Leaf';
+    addTask.addEventListener('click', ()=>{
+      openTaskEditor(null, node.category, node, 'task');
+    });
+
+    const addBranch = document.createElement('button');
+    addBranch.className = 'taskBranchAddButton';
+    addBranch.type = 'button';
+    addBranch.title = 'Add sub-branch';
+    addBranch.setAttribute('aria-label', `Add a branch under ${node.title}`);
+    addBranch.textContent = '+ Branch';
+    addBranch.addEventListener('click', ()=>{
+      openTaskEditor(null, node.category, node, 'branch');
+    });
+
+    actions.append(addTask, addBranch);
+
+    if(!node.isSeed){
+      const edit = document.createElement('button');
+      edit.className = 'taskLeafEditButton';
+      edit.type = 'button';
+      edit.textContent = 'Edit';
+      edit.addEventListener('click', ()=>openTaskEditor(node));
+      actions.appendChild(edit);
+    }
+
+    item.append(visual, content, actions);
+    wrapper.appendChild(item);
+
+    const children = childrenByParent.get(node.id) || [];
+    if(children.length){
+      const childContainer = document.createElement('div');
+      childContainer.className = 'taskTreeChildren';
+      children
+        .sort((a, b)=>(a.nodeType === b.nodeType ? a.title.localeCompare(b.title) : a.nodeType === 'branch' ? -1 : 1))
+        .forEach((child)=>{
+          childContainer.appendChild(
+            createTaskTreeNode(child, depth + 1, childrenByParent, categoryData)
+          );
+        });
+      wrapper.appendChild(childContainer);
+    }
+
+    return wrapper;
+  }
+
+  function openTaskEditor(
+    task = null,
+    category = selectedTaskCategory,
+    parentNode = null,
+    nodeType = 'task',
+    preserveNextLink = false
+  ){
     const categoryData = achievementCategories[task?.category || category];
     if(!categoryData) return;
 
     selectedTaskCategory = task?.category || category;
+    if(!preserveNextLink) pendingNextLink = null;
     pendingTaskImage = task?.image || '';
+    const resolvedType = task?.nodeType || nodeType;
+    const resolvedParentId = task?.parentId || parentNode?.id || '';
+    const resolvedParentLabel = task?.parentLabel || parentNode?.title || '';
 
-    document.getElementById('taskEditorHeading').textContent = task ? 'Edit achievement' : 'Add achievement';
+    document.getElementById('taskEditorHeading').textContent =
+      task
+        ? `Edit ${resolvedType === 'branch' ? 'branch' : 'task'}`
+        : `Add ${resolvedType === 'branch' ? 'branch' : 'task leaf'}`;
     document.getElementById('taskId').value = task?.id || '';
-    document.getElementById('taskParent').value = task?.parent || parent || '';
+    document.getElementById('taskParent').value = resolvedParentId;
+    document.getElementById('taskParentName').value = resolvedParentLabel;
     document.getElementById('taskCategory').value = selectedTaskCategory;
+    document.getElementById('taskNodeType').value = resolvedType;
     document.getElementById('taskTitle').value = task?.title || '';
     document.getElementById('taskDescription').value = task?.description || '';
     document.getElementById('taskImage').value = '';
@@ -863,12 +967,173 @@
     document.getElementById('taskLatitude').value = Number.isFinite(task?.latitude) ? task.latitude : '';
     document.getElementById('taskLongitude').value = Number.isFinite(task?.longitude) ? task.longitude : '';
     document.getElementById('deleteTaskBtn').hidden = !task;
-    document.getElementById('taskSaveStatus').textContent =
-      parent ? `New branch from “${parent}”` : '';
+    document.getElementById('taskNodeTypeBadge').textContent =
+      resolvedType === 'branch' ? 'Branch / layer' : 'Task leaf';
+    document.getElementById('taskParentLabel').textContent =
+      resolvedParentLabel ? `Inside “${resolvedParentLabel}”` : 'Root of section';
+    document.getElementById('taskSaveStatus').textContent = '';
+
+    document.querySelectorAll('.taskOnlyField').forEach((field)=>{
+      field.hidden = resolvedType === 'branch';
+    });
+    populateProgressionFields(task);
 
     updateTaskImagePreview();
-    toggleTaskCoordinates();
+    if(resolvedType === 'task') toggleTaskCoordinates();
     showSettingsView('task-editor');
+  }
+
+  function populateProgressionFields(task){
+    const currentId = task?.id || '';
+    const categoryNodes = achievementTasks.filter((node)=>{
+      return node.category === selectedTaskCategory && node.id !== currentId;
+    });
+    const taskNodes = categoryNodes.filter((node)=>node.nodeType === 'task');
+    const branchNodes = categoryNodes.filter((node)=>node.nodeType === 'branch');
+
+    populateNodeSelect(
+      document.getElementById('taskNextTask'),
+      taskNodes,
+      task?.nextTaskId ? [task.nextTaskId] : [],
+      false,
+      'None'
+    );
+    populateNodeSelect(
+      document.getElementById('taskNextLayer'),
+      branchNodes,
+      task?.nextLayerId ? [task.nextLayerId] : [],
+      false,
+      'None'
+    );
+
+    document.getElementById('taskApprovalRank').value = task?.approvalRank || 'none';
+    document.getElementById('taskSectionPoints').value = task?.sectionPoints || 0;
+    document.getElementById('taskSubsectionPoints').value = task?.subsectionPoints || 0;
+    document.getElementById('taskUnlockType').value = task?.unlockType || 'none';
+    document.getElementById('taskLeadershipOpportunity').checked = Boolean(task?.leadershipOpportunity);
+    document.getElementById('taskEndTask').checked = Boolean(task?.endTask);
+    document.getElementById('taskEndLayer').checked = Boolean(task?.endLayer);
+
+    const hiddenValue = task?.hidden ? 'yes' : 'no';
+    document.querySelectorAll('input[name="taskHidden"]').forEach((radio)=>{
+      radio.checked = radio.value === hiddenValue;
+    });
+    refreshUnlockTargetOptions(task?.unlockTargets || []);
+    toggleProgressionEnds();
+  }
+
+  function populateNodeSelect(select, nodes, selectedIds, multiple, emptyLabel = ''){
+    if(!select) return;
+    select.replaceChildren();
+
+    if(!multiple){
+      const empty = document.createElement('option');
+      empty.value = '';
+      empty.textContent = emptyLabel;
+      select.appendChild(empty);
+    }
+
+    nodes.forEach((node)=>{
+      const option = document.createElement('option');
+      option.value = node.id;
+      option.textContent = `${node.nodeType === 'branch' ? 'Branch' : 'Task'} · ${node.title}`;
+      option.selected = selectedIds.includes(node.id);
+      select.appendChild(option);
+    });
+  }
+
+  function toggleUnlockTargets(){
+    const unlockType = document.getElementById('taskUnlockType').value;
+    const field = document.getElementById('taskUnlockTargetsField');
+    field.hidden = unlockType === 'none';
+  }
+
+  function refreshUnlockTargetOptions(selectedIds = []){
+    const type = document.getElementById('taskUnlockType').value;
+    const select = document.getElementById('taskUnlockTargets');
+    let options = [];
+
+    if(type === 'nodes'){
+      options = achievementTasks
+        .filter((node)=>node.id !== document.getElementById('taskId').value)
+        .map((node)=>({
+          id: node.id,
+          title: `${achievementCategories[node.category]?.label || node.category} · ${node.nodeType === 'branch' ? 'Branch' : 'Task'} · ${node.title}`
+        }));
+    } else if(type === 'section'){
+      options = [
+        ...Object.entries(achievementCategories).map(([id, data])=>({
+          id: `section:${id}`,
+          title: `Section · ${data.label}`
+        })),
+        ...achievementTasks
+          .filter((node)=>node.nodeType === 'branch')
+          .map((node)=>({
+            id: node.id,
+            title: `Subsection · ${node.title}`
+          }))
+      ];
+    } else if(type === 'sub-app'){
+      options = [
+        ['subapp:map', 'Map'],
+        ['subapp:story', 'Story mode'],
+        ['subapp:inventory', 'Inventory'],
+        ['subapp:messages', 'Messages'],
+        ['subapp:self-care', 'Self-Care'],
+        ['subapp:rank-clan', 'Rank / Clan']
+      ].map(([id, title])=>({ id, title: `Sub app · ${title}` }));
+    } else if(type === 'leadership'){
+      options = [
+        ['leadership:guide', 'Guide opportunity'],
+        ['leadership:mentor', 'Mentor opportunity'],
+        ['leadership:section-leader', 'Section leader opportunity'],
+        ['leadership:clan-leader', 'Clan leader opportunity']
+      ].map(([id, title])=>({ id, title }));
+    }
+
+    select.replaceChildren();
+    options.forEach((item)=>{
+      const option = document.createElement('option');
+      option.value = item.id;
+      option.textContent = item.title;
+      option.selected = selectedIds.includes(item.id);
+      select.appendChild(option);
+    });
+    toggleUnlockTargets();
+  }
+
+  function beginNextNodeCreation(type){
+    const sourceId = document.getElementById('taskId').value;
+    if(!sourceId){
+      document.getElementById('taskSaveStatus').textContent =
+        'Save this task before creating its next item.';
+      return;
+    }
+
+    pendingNextLink = { sourceId, type };
+    const parentId = document.getElementById('taskParent').value;
+    const parentTitle = document.getElementById('taskParentName').value;
+    const parentNode = parentId ? { id: parentId, title: parentTitle } : null;
+    openTaskEditor(
+      null,
+      selectedTaskCategory,
+      parentNode,
+      type === 'layer' ? 'branch' : 'task',
+      true
+    );
+    document.getElementById('taskSaveStatus').textContent =
+      type === 'layer'
+        ? 'Saving this branch will link it as the next layer.'
+        : 'Saving this task will link it as the next task.';
+  }
+
+  function toggleProgressionEnds(){
+    const endTask = document.getElementById('taskEndTask').checked;
+    const endLayer = document.getElementById('taskEndLayer').checked;
+    document.getElementById('taskNextTask').disabled = endTask;
+    document.getElementById('createNextTaskBtn').disabled = endTask;
+    document.getElementById('taskNextLayer').disabled = endLayer;
+    document.getElementById('createNextLayerBtn').disabled = endLayer;
   }
 
   function updateTaskImagePreview(){
@@ -899,20 +1164,39 @@
   function saveTaskFromEditor(event){
     event.preventDefault();
     const id = document.getElementById('taskId').value;
-    const isMapItem = document.getElementById('taskIsMapItem').checked;
+    const nodeType = document.getElementById('taskNodeType').value;
+    const isMapItem = nodeType === 'task' && document.getElementById('taskIsMapItem').checked;
     const latitude = Number(document.getElementById('taskLatitude').value);
     const longitude = Number(document.getElementById('taskLongitude').value);
+    const parentId = document.getElementById('taskParent').value;
+    const parentNode = achievementTasks.find((node)=>node.id === parentId);
+    const unlockTargets = [...document.getElementById('taskUnlockTargets').selectedOptions]
+      .map((option)=>option.value);
 
     const task = {
       id: id || createTaskId(),
+      nodeType,
       category: document.getElementById('taskCategory').value,
-      parent: document.getElementById('taskParent').value,
+      parentId,
+      parentLabel: parentNode?.title || document.getElementById('taskParentName').value,
       title: document.getElementById('taskTitle').value.trim(),
       description: document.getElementById('taskDescription').value.trim(),
       image: pendingTaskImage,
       isMapItem,
       latitude: isMapItem ? latitude : null,
       longitude: isMapItem ? longitude : null,
+      approvalRank: nodeType === 'task' ? document.getElementById('taskApprovalRank').value : 'none',
+      sectionPoints: nodeType === 'task' ? Math.max(0, Number(document.getElementById('taskSectionPoints').value) || 0) : 0,
+      subsectionPoints: nodeType === 'task' ? Math.max(0, Number(document.getElementById('taskSubsectionPoints').value) || 0) : 0,
+      unlockType: nodeType === 'task' ? document.getElementById('taskUnlockType').value : 'none',
+      unlockTargets: nodeType === 'task' ? unlockTargets : [],
+      leadershipOpportunity: nodeType === 'task' && document.getElementById('taskLeadershipOpportunity').checked,
+      endTask: nodeType === 'task' && document.getElementById('taskEndTask').checked,
+      nextTaskId: nodeType === 'task' ? document.getElementById('taskNextTask').value : '',
+      endLayer: nodeType === 'task' && document.getElementById('taskEndLayer').checked,
+      nextLayerId: nodeType === 'task' ? document.getElementById('taskNextLayer').value : '',
+      hidden: nodeType === 'task'
+        && document.querySelector('input[name="taskHidden"]:checked')?.value === 'yes',
       updatedAt: Date.now()
     };
 
@@ -928,6 +1212,16 @@
       achievementTasks.push(task);
     }
 
+    if(pendingNextLink){
+      const source = achievementTasks.find((item)=>item.id === pendingNextLink.sourceId);
+      if(source){
+        if(pendingNextLink.type === 'task') source.nextTaskId = task.id;
+        if(pendingNextLink.type === 'layer') source.nextLayerId = task.id;
+        source.updatedAt = Date.now();
+      }
+      pendingNextLink = null;
+    }
+
     if(!saveAchievementTasks()){
       document.getElementById('taskSaveStatus').textContent =
         'Could not save locally. Try a smaller image.';
@@ -936,7 +1230,8 @@
     renderTaskLibrary();
     renderTaskCategoryGrid();
     buildAchievementRail();
-    document.getElementById('taskSaveStatus').textContent = 'Achievement saved.';
+    document.getElementById('taskSaveStatus').textContent =
+      nodeType === 'branch' ? 'Branch saved.' : 'Task saved.';
     window.setTimeout(()=>showSettingsView('tasks'), 500);
 
     if(activeAchievementCategory === task.category){
@@ -950,7 +1245,26 @@
     if(!window.confirm('Delete this achievement? This cannot be undone.')) return;
 
     const deletedTask = achievementTasks.find((task)=>task.id === id);
-    achievementTasks = achievementTasks.filter((task)=>task.id !== id);
+    const idsToDelete = new Set([id]);
+    let foundChildren = true;
+    while(foundChildren){
+      foundChildren = false;
+      achievementTasks.forEach((node)=>{
+        if(idsToDelete.has(node.parentId) && !idsToDelete.has(node.id)){
+          idsToDelete.add(node.id);
+          foundChildren = true;
+        }
+      });
+    }
+
+    achievementTasks = achievementTasks
+      .filter((task)=>!idsToDelete.has(task.id))
+      .map((task)=>({
+        ...task,
+        unlockTargets: task.unlockTargets.filter((targetId)=>!idsToDelete.has(targetId)),
+        nextTaskId: idsToDelete.has(task.nextTaskId) ? '' : task.nextTaskId,
+        nextLayerId: idsToDelete.has(task.nextLayerId) ? '' : task.nextLayerId
+      }));
     saveAchievementTasks();
     renderTaskLibrary();
     renderTaskCategoryGrid();
@@ -1111,7 +1425,10 @@
       showSettingsView('task-category');
     });
     document.getElementById('addBlankTaskBtn')?.addEventListener('click', ()=>{
-      openTaskEditor(null, selectedTaskCategory);
+      openTaskEditor(null, selectedTaskCategory, null, 'task');
+    });
+    document.getElementById('addBlankBranchBtn')?.addEventListener('click', ()=>{
+      openTaskEditor(null, selectedTaskCategory, null, 'branch');
     });
     document.getElementById('profileForm')?.addEventListener('submit', (event)=>{
       event.preventDefault();
@@ -1133,6 +1450,17 @@
       readTaskImage(event.target.files?.[0]);
     });
     document.getElementById('taskIsMapItem')?.addEventListener('change', toggleTaskCoordinates);
+    document.getElementById('taskUnlockType')?.addEventListener('change', ()=>{
+      refreshUnlockTargetOptions([]);
+    });
+    document.getElementById('createNextTaskBtn')?.addEventListener('click', ()=>{
+      beginNextNodeCreation('task');
+    });
+    document.getElementById('createNextLayerBtn')?.addEventListener('click', ()=>{
+      beginNextNodeCreation('layer');
+    });
+    document.getElementById('taskEndTask')?.addEventListener('change', toggleProgressionEnds);
+    document.getElementById('taskEndLayer')?.addEventListener('change', toggleProgressionEnds);
     document.getElementById('useCurrentMapCenter')?.addEventListener('click', ()=>{
       const center = map?.getCenter();
       if(!center) return;

@@ -850,7 +850,8 @@ button, a { font: inherit; }
 .profileForm input,
 .profileForm textarea,
 .taskEditorForm input,
-.taskEditorForm textarea {
+.taskEditorForm textarea,
+.taskEditorForm select {
 	width: 100%;
 	border: 1px solid rgba(205, 216, 255, 0.14);
 	border-radius: 12px;
@@ -862,7 +863,8 @@ button, a { font: inherit; }
 }
 
 .profileForm input,
-.taskEditorForm input { height: 44px; padding: 0 13px; }
+.taskEditorForm input,
+.taskEditorForm select { height: 44px; padding: 0 13px; }
 .profileForm textarea,
 .taskEditorForm textarea { resize: vertical; padding: 12px 13px; }
 
@@ -1015,8 +1017,8 @@ button, a { font: inherit; }
 .taskTree {
 	position: relative;
 	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 14px;
+	grid-template-columns: 1fr;
+	gap: 10px;
 	margin-top: 18px;
 }
 
@@ -1025,10 +1027,24 @@ button, a { font: inherit; }
 	position: absolute;
 	top: -16px;
 	bottom: 0;
-	left: 50%;
+	left: 25px;
 	width: 1px;
 	background: linear-gradient(rgba(116, 214, 160, 0.4), transparent);
 	pointer-events: none;
+}
+
+.taskTreeNode {
+	position: relative;
+	display: grid;
+	gap: 8px;
+}
+
+.taskTreeChildren {
+	display: grid;
+	gap: 8px;
+	margin-left: clamp(18px, calc(var(--tree-depth) * 8px + 30px), 72px);
+	padding-left: 18px;
+	border-left: 1px solid rgba(116, 214, 160, 0.2);
 }
 
 .taskTreeLeaf {
@@ -1043,10 +1059,41 @@ button, a { font: inherit; }
 	background: rgba(255, 255, 255, 0.035);
 }
 
+.taskTreeLeaf.isBranch {
+	border-style: dashed;
+	background:
+		linear-gradient(90deg, color-mix(in srgb, var(--accent) 8%, transparent), rgba(255, 255, 255, 0.025));
+}
+
+.taskTreeLeaf.isHiddenLeaf {
+	opacity: 0.58;
+}
+
 .taskTreeLeafVisual {
 	width: 52px;
 	height: 52px;
 	border-radius: 50%;
+}
+
+.taskTreeLeafContent { min-width: 0; }
+
+.taskTreeBadges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 4px;
+}
+
+.taskTreeBadges em {
+	padding: 2px 5px;
+	border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+	border-radius: 999px;
+	color: color-mix(in srgb, var(--accent) 72%, white);
+	font-size: 7px;
+	font-style: normal;
+	font-weight: 900;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
 }
 
 .taskTreeLeaf strong { display: block; margin-bottom: 4px; font-size: 13px; }
@@ -1061,26 +1108,153 @@ button, a { font: inherit; }
 }
 
 .taskTreeLeafActions {
-	display: grid;
+	display: flex;
+	flex-wrap: wrap;
 	gap: 6px;
-	justify-items: center;
+	justify-content: flex-end;
 }
 
-.taskLeafAddButton {
-	display: grid;
-	width: 32px;
-	height: 32px;
-	place-items: center;
-	padding: 0;
+.taskLeafAddButton,
+.taskBranchAddButton {
+	min-height: 30px;
+	padding: 0 8px;
 	border: 1px solid color-mix(in srgb, var(--accent) 65%, white);
-	border-radius: 50%;
+	border-radius: 999px;
 	background: color-mix(in srgb, var(--accent) 14%, rgba(12, 15, 39, 0.98));
 	color: var(--accent);
-	font-size: 21px;
+	font-size: 9px;
+	font-weight: 900;
 	cursor: pointer;
 }
 
+.taskBranchAddButton {
+	border-color: color-mix(in srgb, var(--accent) 35%, rgba(255, 255, 255, 0.15));
+	background: rgba(255, 255, 255, 0.045);
+	color: #cbd5e9;
+}
+
+.taskTreeCreateActions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 9px;
+}
+
 .taskEditorForm { align-items: start; }
+
+.taskEditorContext {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 12px;
+	border: 1px solid rgba(116, 214, 160, 0.14);
+	border-radius: 12px;
+	background: rgba(116, 214, 160, 0.045);
+}
+
+.taskEditorContext span {
+	padding: 4px 7px;
+	border-radius: 999px;
+	background: rgba(116, 214, 160, 0.12);
+	color: #9be6bb;
+	font-size: 8px;
+	font-weight: 900;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+
+.taskEditorContext p {
+	margin: 0;
+	color: #9ba7ba;
+	font-size: 11px;
+}
+
+.taskOnlyField[hidden],
+#taskUnlockTargetsField[hidden] {
+	display: none !important;
+}
+
+.taskProgressionFields {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 14px;
+	padding: 16px;
+	border: 1px solid rgba(202, 211, 255, 0.1);
+	border-radius: 17px;
+	background: rgba(4, 7, 19, 0.36);
+}
+
+.taskProgressionFields select[multiple] {
+	height: 132px;
+	padding: 8px;
+}
+
+.taskProgressionFields label small {
+	color: #778399;
+	font-size: 8px;
+	font-weight: 600;
+}
+
+.settingsInlineAdd {
+	min-height: 30px;
+	padding: 0 9px;
+	border: 1px solid rgba(116, 214, 160, 0.2);
+	border-radius: 9px;
+	background: rgba(116, 214, 160, 0.07);
+	color: #9be6bb;
+	font-size: 9px;
+	font-weight: 850;
+	cursor: pointer;
+}
+
+.settingsInlineAdd:disabled,
+.taskProgressionFields select:disabled {
+	opacity: 0.42;
+	cursor: not-allowed;
+}
+
+.taskBooleanOption {
+	display: flex !important;
+	align-items: center;
+	gap: 9px !important;
+	min-height: 44px;
+	padding: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 11px;
+	background: rgba(255, 255, 255, 0.03);
+}
+
+.taskBooleanOption input {
+	width: 17px !important;
+	height: 17px !important;
+}
+
+.taskVisibilityField {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0;
+	padding: 10px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 11px;
+}
+
+.taskVisibilityField legend {
+	padding: 0 4px;
+	color: #cdd6e9;
+	font-size: 10px;
+	font-weight: 800;
+}
+
+.taskVisibilityField label {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.taskVisibilityField input {
+	width: 15px !important;
+	height: 15px !important;
+}
 
 .taskImageField input {
 	height: auto;
@@ -2013,6 +2187,20 @@ button, a { font: inherit; }
 	}
 
 	.taskTree::before { left: 25px; }
+	.taskTreeChildren { margin-left: 18px; padding-left: 10px; }
+
+	.taskTreeLeaf {
+		grid-template-columns: 46px minmax(0, 1fr);
+	}
+
+	.taskTreeLeafActions {
+		grid-column: 1 / -1;
+		justify-content: flex-start;
+	}
+
+	.taskProgressionFields {
+		grid-template-columns: 1fr;
+	}
 
 	.taskLibraryCard {
 		grid-template-columns: 54px minmax(0, 1fr) auto;
