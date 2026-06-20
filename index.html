@@ -56,6 +56,156 @@
       </div>
     </section>
 
+    <div id="settingsWorkspace" class="settingsWorkspace" aria-hidden="true">
+      <div class="settingsShell" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <header class="settingsHeader">
+          <div>
+            <p class="settingsEyebrow">Player settings</p>
+            <h2 id="settingsTitle">Manage your FernWay</h2>
+          </div>
+          <button id="closeSettingsWorkspace" class="settingsCloseButton" type="button" aria-label="Close settings">×</button>
+        </header>
+
+        <nav class="settingsTabs" aria-label="Settings sections">
+          <button class="settingsTab isActive" type="button" data-settings-view="profile">Profile</button>
+          <button class="settingsTab" type="button" data-settings-view="tasks">Achievements</button>
+        </nav>
+
+        <div class="settingsBody">
+          <section class="settingsView isActive" data-settings-panel="profile">
+            <div class="settingsSectionHeading">
+              <div>
+                <p class="settingsEyebrow">Personal profile</p>
+                <h3>Edit your information</h3>
+              </div>
+            </div>
+            <form id="profileForm" class="profileForm">
+              <label>
+                Display name
+                <input id="profileDisplayName" name="displayName" type="text" maxlength="60" placeholder="Your FernWay name">
+              </label>
+              <label>
+                Clan or group
+                <input id="profileClan" name="clan" type="text" maxlength="60" placeholder="Optional clan">
+              </label>
+              <label class="settingsWideField">
+                About you
+                <textarea id="profileBio" name="bio" rows="4" maxlength="280" placeholder="A short introduction"></textarea>
+              </label>
+              <label>
+                Home region
+                <input id="profileRegion" name="region" type="text" maxlength="80" placeholder="City or region">
+              </label>
+              <label>
+                Preferred title
+                <input id="profileTitle" name="title" type="text" maxlength="60" placeholder="Explorer, Builder, Story Keeper…">
+              </label>
+              <div class="settingsFormActions settingsWideField">
+                <span id="profileSaveStatus" class="settingsSaveStatus" role="status"></span>
+                <button class="settingsPrimaryButton" type="submit">Save profile</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="settingsView" data-settings-panel="tasks">
+            <div class="settingsSectionHeading">
+              <div>
+                <p class="settingsEyebrow">Achievement manager</p>
+                <h3>Your task library</h3>
+              </div>
+              <button id="startAddTaskBtn" class="settingsPrimaryButton" type="button">＋ Add a task</button>
+            </div>
+            <div id="taskLibrary" class="taskLibrary"></div>
+          </section>
+
+          <section class="settingsView" data-settings-panel="task-category">
+            <div class="settingsSectionHeading">
+              <button class="settingsBackButton" type="button" data-settings-back="tasks">← Back</button>
+              <div>
+                <p class="settingsEyebrow">Step 1 of 3</p>
+                <h3>Choose a section</h3>
+              </div>
+            </div>
+            <p class="settingsInstruction">Which achievement family should this task belong to?</p>
+            <div id="taskCategoryGrid" class="taskCategoryGrid"></div>
+          </section>
+
+          <section class="settingsView" data-settings-panel="task-tree">
+            <div class="settingsSectionHeading">
+              <button class="settingsBackButton" type="button" data-settings-back="task-category">← Sections</button>
+              <div>
+                <p class="settingsEyebrow">Step 2 of 3</p>
+                <h3 id="taskTreeTitle">Choose a leaf</h3>
+              </div>
+            </div>
+            <p class="settingsInstruction">Each leaf is an achievement. Use its plus button to grow a new branch from it, or begin with a blank leaf.</p>
+            <button id="addBlankTaskBtn" class="settingsSecondaryButton" type="button">＋ Create a blank achievement</button>
+            <div id="taskTree" class="taskTree"></div>
+          </section>
+
+          <section class="settingsView" data-settings-panel="task-editor">
+            <div class="settingsSectionHeading">
+              <button class="settingsBackButton" type="button" data-settings-back="task-tree">← Tree</button>
+              <div>
+                <p class="settingsEyebrow">Step 3 of 3</p>
+                <h3 id="taskEditorHeading">Add achievement</h3>
+              </div>
+            </div>
+            <form id="taskEditorForm" class="taskEditorForm">
+              <input id="taskId" type="hidden">
+              <input id="taskParent" type="hidden">
+              <input id="taskCategory" type="hidden">
+
+              <label class="settingsWideField">
+                Title
+                <input id="taskTitle" type="text" maxlength="90" required placeholder="Achievement title">
+              </label>
+
+              <label class="settingsWideField">
+                Description
+                <textarea id="taskDescription" rows="5" maxlength="600" required placeholder="What needs to be completed?"></textarea>
+              </label>
+
+              <label class="taskImageField">
+                Achievement image
+                <input id="taskImage" type="file" accept="image/jpeg,image/png">
+                <span>JPG or PNG · recommended square image</span>
+              </label>
+              <div id="taskImagePreview" class="taskImagePreview">
+                <span>Leaf image preview</span>
+              </div>
+
+              <label class="mapItemToggle settingsWideField">
+                <input id="taskIsMapItem" type="checkbox">
+                <span>
+                  <strong>Show this achievement on the map</strong>
+                  <small>Add exact coordinates so explorers can find it.</small>
+                </span>
+              </label>
+
+              <div id="taskCoordinates" class="taskCoordinates settingsWideField" hidden>
+                <label>
+                  Latitude
+                  <input id="taskLatitude" type="number" min="-90" max="90" step="any" placeholder="37.7749">
+                </label>
+                <label>
+                  Longitude
+                  <input id="taskLongitude" type="number" min="-180" max="180" step="any" placeholder="-122.4194">
+                </label>
+                <button id="useCurrentMapCenter" class="settingsSecondaryButton" type="button">Use current map center</button>
+              </div>
+
+              <div class="settingsFormActions settingsWideField">
+                <button id="deleteTaskBtn" class="settingsDangerButton" type="button" hidden>Delete</button>
+                <span id="taskSaveStatus" class="settingsSaveStatus" role="status"></span>
+                <button class="settingsPrimaryButton" type="submit">Save achievement</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    </div>
+
     <header class="appHeader">
       <a class="brand" href="/" aria-label="FernWay home">
         <span class="brandLogoFrame" aria-hidden="true">

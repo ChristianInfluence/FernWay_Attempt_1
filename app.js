@@ -10,6 +10,13 @@
   let loadingFadeStarted = false;
   let achievementMarkers = [];
   let activeAchievementCategory = null;
+  let achievementTasks = [];
+  let profileData = {};
+  let selectedTaskCategory = null;
+  let pendingTaskImage = '';
+
+  const taskStorageKey = 'fernway-achievement-tasks-v1';
+  const profileStorageKey = 'fernway-profile-v1';
 
   // Prototype achievement content. Replace with nearby API/database results later.
   const achievementCategories = {
@@ -102,6 +109,33 @@
       ]
     }
   };
+
+  function loadLocalData(){
+    try {
+      achievementTasks = JSON.parse(localStorage.getItem(taskStorageKey) || '[]');
+      profileData = JSON.parse(localStorage.getItem(profileStorageKey) || '{}');
+    } catch {
+      achievementTasks = [];
+      profileData = {};
+    }
+  }
+
+  function saveAchievementTasks(){
+    try {
+      localStorage.setItem(taskStorageKey, JSON.stringify(achievementTasks));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function saveProfileData(){
+    localStorage.setItem(profileStorageKey, JSON.stringify(profileData));
+  }
+
+  function createTaskId(){
+    return `achievement-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
 
   function initializeMap(){
     map = new maplibregl.Map({
@@ -438,7 +472,7 @@
     const distances = [260, 420, 570];
     const bearings = [20, 142, 258];
 
-    categoryData.places.forEach((place, index)=>{
+    const nearbyPlaces = categoryData.places.map((place, index)=>{
       const bearing = bearings[index] * Math.PI / 180;
       const north = Math.cos(bearing) * distances[index];
       const east = Math.sin(bearing) * distances[index];
@@ -446,27 +480,58 @@
       const longitude = center[0]
         + (east / (6371008.8 * Math.cos(latitudeRadians))) * (180 / Math.PI);
 
+      return {
+        title: place[0],
+        description: place[1],
+        longitude,
+        latitude,
+        isCustom: false
+      };
+    });
+
+    const customPlaces = achievementTasks
+      .filter((task)=>{
+        return task.category === category
+          && task.isMapItem
+          && Number.isFinite(task.latitude)
+          && Number.isFinite(task.longitude);
+      })
+      .map((task)=>({
+        title: task.title,
+        description: task.description,
+        longitude: task.longitude,
+        latitude: task.latitude,
+        image: task.image,
+        isCustom: true
+      }));
+
+    const allPlaces = [...nearbyPlaces, ...customPlaces];
+
+    allPlaces.forEach((place, index)=>{
       const markerElement = document.createElement('button');
       markerElement.className = 'achievementAreaMarker';
+      if(place.isCustom) markerElement.classList.add('isCustom');
       markerElement.type = 'button';
       markerElement.style.setProperty('--accent', categoryData.accent);
-      markerElement.setAttribute('aria-label', `${place[0]}: ${place[1]}`);
-      markerElement.innerHTML = `<span>${index + 1}</span>`;
+      markerElement.setAttribute('aria-label', `${place.title}: ${place.description}`);
+      markerElement.innerHTML = `<span>${place.isCustom ? '◆' : index + 1}</span>`;
       markerElement.addEventListener('click', ()=>{
-        showAchievementCard(categoryData, place, index);
+        showAchievementCard(categoryData, place, index, allPlaces.length);
       });
 
       const marker = new maplibregl.Marker({
         element: markerElement,
         anchor: 'center'
       })
-        .setLngLat([longitude, latitude])
+        .setLngLat([place.longitude, place.latitude])
         .addTo(map);
 
       achievementMarkers.push(marker);
     });
 
-    showAchievementCard(categoryData, categoryData.places[0], 0);
+    if(allPlaces.length){
+      showAchievementCard(categoryData, allPlaces[0], 0, allPlaces.length);
+    }
     map.easeTo({
       center,
       zoom: Math.max(map.getZoom(), 15),
@@ -474,17 +539,336 @@
     });
   }
 
-  function showAchievementCard(categoryData, place, index){
+  function showAchievementCard(categoryData, place, index, totalPlaces){
     const card = document.getElementById('achievementMapCard');
     if(!card) return;
 
     card.style.setProperty('--accent', categoryData.accent);
     document.getElementById('achievementCardEyebrow').textContent = `${categoryData.label} achievement area`;
-    document.getElementById('achievementCardTitle').textContent = place[0];
-    document.getElementById('achievementCardDescription').textContent = place[1];
+    document.getElementById('achievementCardTitle').textContent = place.title;
+    document.getElementById('achievementCardDescription').textContent = place.description;
     document.getElementById('achievementCardProgressText').textContent =
-      `${categoryData.progress} of ${categoryData.goal} badge steps complete · Nearby stop ${index + 1} of ${categoryData.places.length}`;
+      `${categoryData.progress} of ${categoryData.goal} badge steps complete · ${place.isCustom ? 'Custom map achievement' : `Nearby stop ${index + 1} of ${totalPlaces}`}`;
     card.classList.add('isVisible');
+  }
+
+  function openSettingsWorkspace(view = 'profile'){
+    const workspace = document.getElementById('settingsWorkspace');
+    if(!workspace) return;
+
+    populateProfileForm();
+    renderTaskLibrary();
+    renderTaskCategoryGrid();
+    showSettingsView(view);
+    workspace.classList.add('isVisible');
+    workspace.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeSettingsWorkspace(){
+    const workspace = document.getElementById('settingsWorkspace');
+    if(!workspace) return;
+    workspace.classList.remove('isVisible');
+    workspace.setAttribute('aria-hidden', 'true');
+  }
+
+  function showSettingsView(view){
+    document.querySelectorAll('.settingsView').forEach((panel)=>{
+      panel.classList.toggle('isActive', panel.dataset.settingsPanel === view);
+    });
+    document.querySelectorAll('.settingsTab').forEach((tab)=>{
+      tab.classList.toggle('isActive', tab.dataset.settingsView === view);
+    });
+  }
+
+  function populateProfileForm(){
+    document.getElementById('profileDisplayName').value = profileData.displayName || '';
+    document.getElementById('profileClan').value = profileData.clan || '';
+    document.getElementById('profileBio').value = profileData.bio || '';
+    document.getElementById('profileRegion').value = profileData.region || '';
+    document.getElementById('profileTitle').value = profileData.title || '';
+  }
+
+  function renderTaskCategoryGrid(){
+    const grid = document.getElementById('taskCategoryGrid');
+    if(!grid) return;
+
+    grid.replaceChildren();
+    Object.entries(achievementCategories).forEach(([category, categoryData])=>{
+      const sourceButton = document.querySelector(`.achievementButton[data-category="${category}"]`);
+      const button = document.createElement('button');
+      button.className = 'taskCategoryCard';
+      button.type = 'button';
+      button.dataset.category = category;
+      button.style.setProperty('--accent', categoryData.accent);
+      if(sourceButton) button.appendChild(sourceButton.querySelector('svg').cloneNode(true));
+
+      const text = document.createElement('span');
+      text.innerHTML = `<strong>${categoryData.label}</strong><small>${achievementTasks.filter((task)=>task.category === category).length} custom achievements</small>`;
+      button.appendChild(text);
+      button.addEventListener('click', ()=>{
+        selectedTaskCategory = category;
+        renderTaskTree(category);
+        showSettingsView('task-tree');
+      });
+      grid.appendChild(button);
+    });
+  }
+
+  function renderTaskLibrary(){
+    const library = document.getElementById('taskLibrary');
+    if(!library) return;
+
+    library.replaceChildren();
+    if(!achievementTasks.length){
+      const empty = document.createElement('div');
+      empty.className = 'taskEmptyState';
+      empty.innerHTML = '<strong>No custom achievements yet</strong><p>Add a task to grow your first branch.</p>';
+      library.appendChild(empty);
+      return;
+    }
+
+    achievementTasks
+      .slice()
+      .sort((a, b)=>b.updatedAt - a.updatedAt)
+      .forEach((task)=>{
+        const categoryData = achievementCategories[task.category];
+        const card = document.createElement('article');
+        card.className = 'taskLibraryCard';
+        card.style.setProperty('--accent', categoryData?.accent || '#74d6a0');
+
+        const visual = document.createElement('div');
+        visual.className = 'taskLibraryImage';
+        if(task.image){
+          const image = document.createElement('img');
+          image.src = task.image;
+          image.alt = '';
+          visual.appendChild(image);
+        } else {
+          visual.textContent = '◆';
+        }
+
+        const content = document.createElement('div');
+        content.className = 'taskLibraryContent';
+        content.innerHTML = `
+          <p>${categoryData?.label || task.category}${task.isMapItem ? ' · Map item' : ''}</p>
+          <h4>${escapeHtml(task.title)}</h4>
+          <span>${escapeHtml(task.description)}</span>
+        `;
+
+        const edit = document.createElement('button');
+        edit.className = 'taskEditButton';
+        edit.type = 'button';
+        edit.textContent = 'Edit';
+        edit.addEventListener('click', ()=>openTaskEditor(task));
+
+        card.append(visual, content, edit);
+        library.appendChild(card);
+      });
+  }
+
+  function renderTaskTree(category){
+    const tree = document.getElementById('taskTree');
+    const categoryData = achievementCategories[category];
+    if(!tree || !categoryData) return;
+
+    document.getElementById('taskTreeTitle').textContent = `${categoryData.label} achievement tree`;
+    tree.replaceChildren();
+
+    const seedLeaves = categoryData.places.map((place, index)=>({
+      id: `seed-${category}-${index}`,
+      title: place[0],
+      description: place[1],
+      isSeed: true
+    }));
+    const customLeaves = achievementTasks.filter((task)=>task.category === category);
+
+    [...seedLeaves, ...customLeaves].forEach((leaf)=>{
+      const branch = document.createElement('article');
+      branch.className = 'taskTreeLeaf';
+      branch.style.setProperty('--accent', categoryData.accent);
+
+      const visual = document.createElement('div');
+      visual.className = 'taskTreeLeafVisual';
+      if(leaf.image){
+        const image = document.createElement('img');
+        image.src = leaf.image;
+        image.alt = '';
+        visual.appendChild(image);
+      } else {
+        visual.textContent = '◆';
+      }
+
+      const content = document.createElement('div');
+      content.innerHTML = `<strong>${escapeHtml(leaf.title)}</strong><span>${escapeHtml(leaf.description)}</span>`;
+
+      const actions = document.createElement('div');
+      actions.className = 'taskTreeLeafActions';
+
+      const add = document.createElement('button');
+      add.className = 'taskLeafAddButton';
+      add.type = 'button';
+      add.setAttribute('aria-label', `Add a branch from ${leaf.title}`);
+      add.textContent = '+';
+      add.addEventListener('click', ()=>{
+        openTaskEditor(null, category, leaf.title);
+      });
+      actions.appendChild(add);
+
+      if(!leaf.isSeed){
+        const edit = document.createElement('button');
+        edit.className = 'taskLeafEditButton';
+        edit.type = 'button';
+        edit.textContent = 'Edit';
+        edit.addEventListener('click', ()=>openTaskEditor(leaf));
+        actions.appendChild(edit);
+      }
+
+      branch.append(visual, content, actions);
+      tree.appendChild(branch);
+    });
+  }
+
+  function openTaskEditor(task = null, category = selectedTaskCategory, parent = ''){
+    const categoryData = achievementCategories[task?.category || category];
+    if(!categoryData) return;
+
+    selectedTaskCategory = task?.category || category;
+    pendingTaskImage = task?.image || '';
+
+    document.getElementById('taskEditorHeading').textContent = task ? 'Edit achievement' : 'Add achievement';
+    document.getElementById('taskId').value = task?.id || '';
+    document.getElementById('taskParent').value = task?.parent || parent || '';
+    document.getElementById('taskCategory').value = selectedTaskCategory;
+    document.getElementById('taskTitle').value = task?.title || '';
+    document.getElementById('taskDescription').value = task?.description || '';
+    document.getElementById('taskImage').value = '';
+    document.getElementById('taskIsMapItem').checked = Boolean(task?.isMapItem);
+    document.getElementById('taskLatitude').value = Number.isFinite(task?.latitude) ? task.latitude : '';
+    document.getElementById('taskLongitude').value = Number.isFinite(task?.longitude) ? task.longitude : '';
+    document.getElementById('deleteTaskBtn').hidden = !task;
+    document.getElementById('taskSaveStatus').textContent =
+      parent ? `New branch from “${parent}”` : '';
+
+    updateTaskImagePreview();
+    toggleTaskCoordinates();
+    showSettingsView('task-editor');
+  }
+
+  function updateTaskImagePreview(){
+    const preview = document.getElementById('taskImagePreview');
+    if(!preview) return;
+    preview.replaceChildren();
+
+    if(pendingTaskImage){
+      const image = document.createElement('img');
+      image.src = pendingTaskImage;
+      image.alt = 'Achievement image preview';
+      preview.appendChild(image);
+    } else {
+      const placeholder = document.createElement('span');
+      placeholder.textContent = 'Leaf image preview';
+      preview.appendChild(placeholder);
+    }
+  }
+
+  function toggleTaskCoordinates(){
+    const enabled = document.getElementById('taskIsMapItem').checked;
+    const coordinates = document.getElementById('taskCoordinates');
+    coordinates.hidden = !enabled;
+    document.getElementById('taskLatitude').required = enabled;
+    document.getElementById('taskLongitude').required = enabled;
+  }
+
+  function saveTaskFromEditor(event){
+    event.preventDefault();
+    const id = document.getElementById('taskId').value;
+    const isMapItem = document.getElementById('taskIsMapItem').checked;
+    const latitude = Number(document.getElementById('taskLatitude').value);
+    const longitude = Number(document.getElementById('taskLongitude').value);
+
+    const task = {
+      id: id || createTaskId(),
+      category: document.getElementById('taskCategory').value,
+      parent: document.getElementById('taskParent').value,
+      title: document.getElementById('taskTitle').value.trim(),
+      description: document.getElementById('taskDescription').value.trim(),
+      image: pendingTaskImage,
+      isMapItem,
+      latitude: isMapItem ? latitude : null,
+      longitude: isMapItem ? longitude : null,
+      updatedAt: Date.now()
+    };
+
+    if(isMapItem && (!Number.isFinite(latitude) || !Number.isFinite(longitude))){
+      document.getElementById('taskSaveStatus').textContent = 'Add valid map coordinates.';
+      return;
+    }
+
+    const existingIndex = achievementTasks.findIndex((item)=>item.id === task.id);
+    if(existingIndex >= 0){
+      achievementTasks[existingIndex] = task;
+    } else {
+      achievementTasks.push(task);
+    }
+
+    if(!saveAchievementTasks()){
+      document.getElementById('taskSaveStatus').textContent =
+        'Could not save locally. Try a smaller image.';
+      return;
+    }
+    renderTaskLibrary();
+    renderTaskCategoryGrid();
+    buildAchievementRail();
+    document.getElementById('taskSaveStatus').textContent = 'Achievement saved.';
+    window.setTimeout(()=>showSettingsView('tasks'), 500);
+
+    if(activeAchievementCategory === task.category){
+      showAchievementAreas(task.category);
+    }
+  }
+
+  function deleteCurrentTask(){
+    const id = document.getElementById('taskId').value;
+    if(!id) return;
+    if(!window.confirm('Delete this achievement? This cannot be undone.')) return;
+
+    const deletedTask = achievementTasks.find((task)=>task.id === id);
+    achievementTasks = achievementTasks.filter((task)=>task.id !== id);
+    saveAchievementTasks();
+    renderTaskLibrary();
+    renderTaskCategoryGrid();
+    buildAchievementRail();
+    showSettingsView('tasks');
+
+    if(deletedTask && activeAchievementCategory === deletedTask.category){
+      showAchievementAreas(deletedTask.category);
+    }
+  }
+
+  function readTaskImage(file){
+    if(!file) return;
+    const status = document.getElementById('taskSaveStatus');
+    if(file.size > 2 * 1024 * 1024){
+      status.textContent = 'Please use an image smaller than 2 MB.';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.addEventListener('load', ()=>{
+      pendingTaskImage = reader.result;
+      updateTaskImagePreview();
+      status.textContent = '';
+    });
+    reader.readAsDataURL(file);
+  }
+
+  function escapeHtml(value = ''){
+    return String(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
   }
 
   function emptyFeatureCollection(){
@@ -535,6 +919,7 @@
     const loading = document.getElementById('loadingOverlay');
     const closeAchievementCard = document.getElementById('closeAchievementCard');
 
+    loadLocalData();
     buildAchievementRail();
     if(mapLocationBtn) mapLocationBtn.addEventListener('click', centerOnUserLocation);
     if(mapModeBtn) mapModeBtn.addEventListener('click', closeMenuForMap);
@@ -557,7 +942,7 @@
     if(playerExitBtn) playerExitBtn.addEventListener('click', closePlayerQuickMenu);
     if(playerSettingsBtn){
       playerSettingsBtn.addEventListener('click', ()=>{
-        setRadialMessage('Settings · preferences and self-care options to follow');
+        openSettingsWorkspace('profile');
       });
     }
     playerActionButtons.forEach((button)=>{
@@ -575,6 +960,62 @@
         document.getElementById('achievementMapCard')?.classList.remove('isVisible');
       });
     }
+
+    document.getElementById('closeSettingsWorkspace')?.addEventListener('click', closeSettingsWorkspace);
+    document.getElementById('settingsWorkspace')?.addEventListener('click', (event)=>{
+      if(event.target.id === 'settingsWorkspace') closeSettingsWorkspace();
+    });
+    document.querySelectorAll('.settingsTab').forEach((tab)=>{
+      tab.addEventListener('click', ()=>showSettingsView(tab.dataset.settingsView));
+    });
+    document.querySelectorAll('[data-settings-back]').forEach((button)=>{
+      button.addEventListener('click', ()=>{
+        const view = button.dataset.settingsBack;
+        if(view === 'task-tree' && selectedTaskCategory){
+          renderTaskTree(selectedTaskCategory);
+        }
+        showSettingsView(view);
+      });
+    });
+    document.getElementById('startAddTaskBtn')?.addEventListener('click', ()=>{
+      renderTaskCategoryGrid();
+      showSettingsView('task-category');
+    });
+    document.getElementById('addBlankTaskBtn')?.addEventListener('click', ()=>{
+      openTaskEditor(null, selectedTaskCategory);
+    });
+    document.getElementById('profileForm')?.addEventListener('submit', (event)=>{
+      event.preventDefault();
+      profileData = {
+        displayName: document.getElementById('profileDisplayName').value.trim(),
+        clan: document.getElementById('profileClan').value.trim(),
+        bio: document.getElementById('profileBio').value.trim(),
+        region: document.getElementById('profileRegion').value.trim(),
+        title: document.getElementById('profileTitle').value.trim()
+      };
+      saveProfileData();
+      const status = document.getElementById('profileSaveStatus');
+      status.textContent = 'Profile saved.';
+      window.setTimeout(()=>{ status.textContent = ''; }, 1800);
+    });
+    document.getElementById('taskEditorForm')?.addEventListener('submit', saveTaskFromEditor);
+    document.getElementById('deleteTaskBtn')?.addEventListener('click', deleteCurrentTask);
+    document.getElementById('taskImage')?.addEventListener('change', (event)=>{
+      readTaskImage(event.target.files?.[0]);
+    });
+    document.getElementById('taskIsMapItem')?.addEventListener('change', toggleTaskCoordinates);
+    document.getElementById('useCurrentMapCenter')?.addEventListener('click', ()=>{
+      const center = map?.getCenter();
+      if(!center) return;
+      document.getElementById('taskLatitude').value = center.lat.toFixed(6);
+      document.getElementById('taskLongitude').value = center.lng.toFixed(6);
+    });
+    document.addEventListener('keydown', (event)=>{
+      if(event.key === 'Escape' && document.getElementById('settingsWorkspace')?.classList.contains('isVisible')){
+        closeSettingsWorkspace();
+      }
+    });
+
     if(loading){
       loading.addEventListener('click', skipLoading);
       loading.addEventListener('keydown', (event)=>{

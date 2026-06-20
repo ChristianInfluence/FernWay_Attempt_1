@@ -515,6 +515,503 @@ button, a { font: inherit; }
 	font-size: 7px;
 }
 
+.settingsWorkspace {
+	position: fixed;
+	inset: 0;
+	z-index: 1200;
+	display: grid;
+	place-items: center;
+	padding: 24px;
+	background: rgba(5, 7, 18, 0.72);
+	backdrop-filter: blur(12px) saturate(90%);
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition: opacity 220ms ease, visibility 220ms ease;
+}
+
+.settingsWorkspace.isVisible {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+.settingsShell {
+	display: grid;
+	grid-template-rows: auto auto minmax(0, 1fr);
+	width: min(960px, 100%);
+	height: min(760px, 92vh);
+	overflow: hidden;
+	border: 1px solid rgba(199, 211, 255, 0.18);
+	border-radius: 28px;
+	background:
+		linear-gradient(145deg, rgba(24, 29, 57, 0.98), rgba(8, 12, 28, 0.99));
+	color: #eef2ff;
+	box-shadow: 0 38px 100px rgba(0, 0, 0, 0.55);
+}
+
+.settingsHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	padding: 24px 26px 18px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.settingsHeader h2,
+.settingsSectionHeading h3 {
+	margin: 3px 0 0;
+	font-family: Georgia, "Times New Roman", serif;
+	font-weight: 500;
+	letter-spacing: -0.02em;
+}
+
+.settingsHeader h2 { font-size: 30px; }
+.settingsSectionHeading h3 { font-size: 25px; }
+
+.settingsEyebrow {
+	margin: 0;
+	color: #8ee1b2;
+	font-size: 9px;
+	font-weight: 900;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.settingsCloseButton {
+	display: grid;
+	width: 40px;
+	height: 40px;
+	place-items: center;
+	padding: 0;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.055);
+	color: #dfe5ff;
+	font-size: 25px;
+	cursor: pointer;
+}
+
+.settingsTabs {
+	display: flex;
+	gap: 8px;
+	padding: 12px 26px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+	background: rgba(7, 10, 26, 0.44);
+}
+
+.settingsTab {
+	padding: 8px 14px;
+	border: 1px solid transparent;
+	border-radius: 999px;
+	background: transparent;
+	color: #9ca7be;
+	font-size: 12px;
+	font-weight: 800;
+	cursor: pointer;
+}
+
+.settingsTab.isActive {
+	border-color: rgba(116, 214, 160, 0.25);
+	background: rgba(116, 214, 160, 0.1);
+	color: #a8edc5;
+}
+
+.settingsBody {
+	position: relative;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.settingsView {
+	position: absolute;
+	inset: 0;
+	overflow-y: auto;
+	padding: 26px;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateX(12px);
+	transition: opacity 180ms ease, transform 200ms ease, visibility 180ms ease;
+}
+
+.settingsView.isActive {
+	opacity: 1;
+	visibility: visible;
+	transform: translateX(0);
+}
+
+.settingsSectionHeading {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 22px;
+}
+
+.settingsInstruction {
+	margin: -10px 0 22px;
+	color: #9da8bd;
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.settingsPrimaryButton,
+.settingsSecondaryButton,
+.settingsDangerButton,
+.settingsBackButton {
+	min-height: 40px;
+	padding: 0 15px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 850;
+	cursor: pointer;
+}
+
+.settingsPrimaryButton {
+	border: 0;
+	background: #74d6a0;
+	color: #0c2718;
+}
+
+.settingsSecondaryButton,
+.settingsBackButton {
+	border: 1px solid rgba(255, 255, 255, 0.11);
+	background: rgba(255, 255, 255, 0.055);
+	color: #dce4f8;
+}
+
+.settingsDangerButton {
+	margin-right: auto;
+	border: 1px solid rgba(255, 110, 104, 0.3);
+	background: rgba(255, 92, 86, 0.08);
+	color: #ffaaa6;
+}
+
+.settingsBackButton {
+	min-height: 34px;
+	padding: 0 11px;
+}
+
+.profileForm,
+.taskEditorForm {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 18px;
+}
+
+.profileForm label,
+.taskEditorForm label,
+.taskCoordinates label {
+	display: grid;
+	gap: 7px;
+	color: #cdd6e9;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.03em;
+}
+
+.profileForm input,
+.profileForm textarea,
+.taskEditorForm input,
+.taskEditorForm textarea {
+	width: 100%;
+	border: 1px solid rgba(205, 216, 255, 0.14);
+	border-radius: 12px;
+	background: rgba(4, 7, 19, 0.58);
+	color: #f2f5ff;
+	font: 500 14px/1.45 inherit;
+	outline: none;
+	transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.profileForm input,
+.taskEditorForm input { height: 44px; padding: 0 13px; }
+.profileForm textarea,
+.taskEditorForm textarea { resize: vertical; padding: 12px 13px; }
+
+.profileForm input:focus,
+.profileForm textarea:focus,
+.taskEditorForm input:focus,
+.taskEditorForm textarea:focus {
+	border-color: rgba(116, 214, 160, 0.65);
+	box-shadow: 0 0 0 4px rgba(116, 214, 160, 0.08);
+}
+
+.settingsWideField { grid-column: 1 / -1; }
+
+.settingsFormActions {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 12px;
+	padding-top: 6px;
+}
+
+.settingsSaveStatus {
+	margin-right: auto;
+	color: #8eddb0;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.taskLibrary {
+	display: grid;
+	gap: 12px;
+}
+
+.taskEmptyState {
+	padding: 44px 20px;
+	border: 1px dashed rgba(255, 255, 255, 0.14);
+	border-radius: 18px;
+	color: #a9b4ca;
+	text-align: center;
+}
+
+.taskEmptyState strong { color: #e9edfa; }
+.taskEmptyState p { margin: 6px 0 0; font-size: 12px; }
+
+.taskLibraryCard {
+	display: grid;
+	grid-template-columns: 64px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 14px;
+	padding: 12px 14px 12px 12px;
+	border: 1px solid color-mix(in srgb, var(--accent) 20%, rgba(255, 255, 255, 0.08));
+	border-radius: 16px;
+	background: rgba(255, 255, 255, 0.035);
+}
+
+.taskLibraryImage,
+.taskTreeLeafVisual {
+	display: grid;
+	overflow: hidden;
+	place-items: center;
+	border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+	border-radius: 13px;
+	background: color-mix(in srgb, var(--accent) 10%, rgba(8, 11, 29, 0.9));
+	color: var(--accent);
+}
+
+.taskLibraryImage {
+	width: 64px;
+	height: 64px;
+}
+
+.taskLibraryImage img,
+.taskTreeLeafVisual img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.taskLibraryContent { min-width: 0; }
+.taskLibraryContent p {
+	margin: 0 0 4px;
+	color: var(--accent);
+	font-size: 9px;
+	font-weight: 900;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+.taskLibraryContent h4 { margin: 0 0 5px; font-size: 15px; }
+.taskLibraryContent span {
+	display: -webkit-box;
+	overflow: hidden;
+	color: #aab4c7;
+	font-size: 12px;
+	line-height: 1.4;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.taskEditButton,
+.taskLeafEditButton {
+	padding: 7px 10px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 9px;
+	background: rgba(255, 255, 255, 0.05);
+	color: #dae2f4;
+	font-size: 10px;
+	font-weight: 800;
+	cursor: pointer;
+}
+
+.taskCategoryGrid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 14px;
+}
+
+.taskCategoryCard {
+	display: grid;
+	min-height: 150px;
+	place-items: center;
+	gap: 10px;
+	padding: 18px 12px;
+	border: 1px solid color-mix(in srgb, var(--accent) 35%, rgba(255, 255, 255, 0.08));
+	border-radius: 18px;
+	background:
+		radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--accent) 18%, transparent), rgba(8, 11, 29, 0.85) 72%);
+	color: var(--accent);
+	cursor: pointer;
+}
+
+.taskCategoryCard:hover {
+	border-color: color-mix(in srgb, var(--accent) 72%, white);
+	transform: translateY(-2px);
+}
+
+.taskCategoryCard svg {
+	width: 56px;
+	height: 56px;
+	fill: color-mix(in srgb, var(--accent) 12%, transparent);
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.taskCategoryCard > span { display: grid; gap: 3px; text-align: center; }
+.taskCategoryCard strong { color: #f0f3ff; font-size: 13px; }
+.taskCategoryCard small { color: #8e99ae; font-size: 9px; }
+
+.taskTree {
+	position: relative;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 14px;
+	margin-top: 18px;
+}
+
+.taskTree::before {
+	content: "";
+	position: absolute;
+	top: -16px;
+	bottom: 0;
+	left: 50%;
+	width: 1px;
+	background: linear-gradient(rgba(116, 214, 160, 0.4), transparent);
+	pointer-events: none;
+}
+
+.taskTreeLeaf {
+	position: relative;
+	display: grid;
+	grid-template-columns: 52px minmax(0, 1fr) auto;
+	align-items: center;
+	gap: 12px;
+	padding: 11px;
+	border: 1px solid color-mix(in srgb, var(--accent) 24%, rgba(255, 255, 255, 0.07));
+	border-radius: 15px;
+	background: rgba(255, 255, 255, 0.035);
+}
+
+.taskTreeLeafVisual {
+	width: 52px;
+	height: 52px;
+	border-radius: 50%;
+}
+
+.taskTreeLeaf strong { display: block; margin-bottom: 4px; font-size: 13px; }
+.taskTreeLeaf span {
+	display: -webkit-box;
+	overflow: hidden;
+	color: #9da7bb;
+	font-size: 10px;
+	line-height: 1.35;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.taskTreeLeafActions {
+	display: grid;
+	gap: 6px;
+	justify-items: center;
+}
+
+.taskLeafAddButton {
+	display: grid;
+	width: 32px;
+	height: 32px;
+	place-items: center;
+	padding: 0;
+	border: 1px solid color-mix(in srgb, var(--accent) 65%, white);
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--accent) 14%, rgba(12, 15, 39, 0.98));
+	color: var(--accent);
+	font-size: 21px;
+	cursor: pointer;
+}
+
+.taskEditorForm { align-items: start; }
+
+.taskImageField input {
+	height: auto;
+	padding: 10px;
+}
+
+.taskImageField > span {
+	color: #7f8aa0;
+	font-size: 9px;
+	font-weight: 600;
+}
+
+.taskImagePreview {
+	display: grid;
+	width: 150px;
+	height: 150px;
+	place-items: center;
+	overflow: hidden;
+	justify-self: start;
+	border: 1px dashed rgba(255, 255, 255, 0.16);
+	border-radius: 18px;
+	background: rgba(4, 7, 19, 0.45);
+	color: #778297;
+	font-size: 10px;
+	text-align: center;
+}
+
+.taskImagePreview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.mapItemToggle {
+	display: flex !important;
+	align-items: center;
+	gap: 12px !important;
+	padding: 14px;
+	border: 1px solid rgba(116, 214, 160, 0.18);
+	border-radius: 14px;
+	background: rgba(116, 214, 160, 0.055);
+	cursor: pointer;
+}
+
+.mapItemToggle input { width: 18px; height: 18px; }
+.mapItemToggle span { display: grid; gap: 3px; }
+.mapItemToggle small { color: #8995a9; font-size: 10px; }
+
+.taskCoordinates {
+	grid-template-columns: 1fr 1fr auto;
+	align-items: end;
+	gap: 12px;
+	padding: 14px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 14px;
+	background: rgba(5, 8, 22, 0.42);
+}
+
+.taskCoordinates:not([hidden]) { display: grid; }
+
+.achievementAreaMarker.isCustom {
+	width: 42px;
+	height: 42px;
+	border-style: double;
+	border-width: 4px;
+}
+
 #menuOverlay {
 	position: fixed;
 	inset: 0;
@@ -1340,6 +1837,66 @@ button, a { font: inherit; }
 }
 
 @media (max-width: 640px) {
+	.settingsWorkspace { padding: 0; }
+
+	.settingsShell {
+		width: 100%;
+		height: 100%;
+		border: 0;
+		border-radius: 0;
+	}
+
+	.settingsHeader { padding: 18px 16px 14px; }
+	.settingsHeader h2 { font-size: 24px; }
+	.settingsTabs { padding: 10px 16px; }
+	.settingsView { padding: 18px 16px 28px; }
+
+	.settingsSectionHeading {
+		align-items: flex-start;
+		flex-wrap: wrap;
+		margin-bottom: 18px;
+	}
+
+	.settingsSectionHeading h3 { font-size: 22px; }
+
+	.profileForm,
+	.taskEditorForm {
+		grid-template-columns: 1fr;
+	}
+
+	.settingsWideField { grid-column: auto; }
+
+	.taskCategoryGrid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.taskCategoryCard { min-height: 128px; }
+
+	.taskTree {
+		grid-template-columns: 1fr;
+	}
+
+	.taskTree::before { left: 25px; }
+
+	.taskLibraryCard {
+		grid-template-columns: 54px minmax(0, 1fr) auto;
+		padding-right: 10px;
+	}
+
+	.taskLibraryImage {
+		width: 54px;
+		height: 54px;
+	}
+
+	.taskCoordinates:not([hidden]) {
+		grid-template-columns: 1fr;
+	}
+
+	.taskImagePreview {
+		width: 128px;
+		height: 128px;
+	}
+
 	.appHeader { top: 14px; left: 14px; }
 	.brand {
 		gap: 10px;
