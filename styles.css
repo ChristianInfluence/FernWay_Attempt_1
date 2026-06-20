@@ -274,9 +274,10 @@ button, a { font: inherit; }
 
 .radialMenu {
 	--primary-size: 96px;
-	--utility-size: 54px;
-	--inner-radius: min(13.5vmin, 92px);
-	--middle-radius: min(22.5vmin, 158px);
+	--utility-size: 68px;
+	--satellite-size: 32px;
+	--spoke-radius: min(20vmin, 142px);
+	--satellite-radius: min(28vmin, 198px);
 	--outer-radius: min(34vmin, 240px);
 	position: relative;
 	width: calc(var(--outer-radius) * 2 + var(--primary-size));
@@ -442,19 +443,48 @@ button, a { font: inherit; }
 	font-weight: 700;
 }
 
-.utilityButton.innerRing {
+.connectorSpoke {
+	position: absolute;
+	top: calc(50% - var(--satellite-radius));
+	left: calc(50% - 1px);
+	z-index: 1;
+	width: 2px;
+	height: var(--satellite-radius);
+	background: linear-gradient(
+		to bottom,
+		rgba(190, 198, 255, 0.44),
+		rgba(190, 198, 255, 0.18) 78%,
+		rgba(190, 198, 255, 0.04)
+	);
+	box-shadow: 0 0 8px rgba(132, 143, 230, 0.14);
+	transform: rotate(var(--angle));
+	transform-origin: 50% 100%;
+	pointer-events: none;
+}
+
+.utilityButton.spokePrimary {
 	transform:
 		translate(-50%, -50%)
 		rotate(var(--angle))
-		translateY(calc(var(--inner-radius) * -1))
+		translateY(calc(var(--spoke-radius) * -1))
 		rotate(calc(0deg - var(--angle)));
 }
 
-.utilityButton.middleRing {
+.satelliteButton {
+	z-index: 3;
+	width: var(--satellite-size);
+	height: var(--satellite-size);
+	border-color: rgba(219, 224, 255, 0.44);
+	background: linear-gradient(145deg, rgba(73, 78, 150, 0.98), rgba(24, 25, 73, 0.98));
+	font-family: ui-sans-serif, system-ui, sans-serif;
+	font-size: 11px;
+	box-shadow:
+		0 8px 20px rgba(8, 8, 31, 0.44),
+		0 0 0 4px rgba(135, 145, 231, 0.08);
 	transform:
 		translate(-50%, -50%)
 		rotate(var(--angle))
-		translateY(calc(var(--middle-radius) * -1))
+		translateY(calc(var(--satellite-radius) * -1))
 		rotate(calc(0deg - var(--angle)));
 }
 
@@ -608,9 +638,10 @@ button, a { font: inherit; }
 
 	.radialMenu {
 		--primary-size: 72px;
-		--utility-size: 40px;
-		--inner-radius: 64px;
-		--middle-radius: 108px;
+		--utility-size: 48px;
+		--satellite-size: 26px;
+		--spoke-radius: 88px;
+		--satellite-radius: 126px;
 		--outer-radius: min(38vw, 148px);
 	}
 
@@ -636,6 +667,7 @@ button, a { font: inherit; }
 	}
 
 	.utilityButton { font-size: 19px; }
+	.satelliteButton { font-size: 9px; }
 	.radialLabel { top: calc(100% + 5px); font-size: 8px; }
 	.radialMessage {
 		bottom: 20px;
