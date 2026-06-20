@@ -13,8 +13,7 @@ Files added:
 
 Quick setup
 
-1. Place a looping MP4 at `assets/video.mp4` (create the `assets` folder).
-2. Serve the folder over a local web server (some browsers restrict `file://` autoplay and service worker behavior).
+1. Serve the folder over a local web server (some browsers restrict `file://` autoplay and service worker behavior).
 
 Example (Python 3):
 
@@ -29,7 +28,8 @@ Notes
 - Location tracking works on `localhost` during development. Production deployments must use HTTPS and require the user's permission.
 - Keep the required OpenStreetMap and OpenFreeMap attribution visible. For production, review the provider's terms or self-host the vector data.
 - To make the app installable on iOS and desktop, customize `manifest.json` and add proper icons. iOS requires meta tags in `index.html` and additional steps.
-- This prototype uses a placeholder `assets/video.mp4` and placeholder icons — add real assets when ready.
+- `FernWay.mp4` is used as the full-screen loading animation.
+- The manifest still uses placeholder icons — add production icons when ready.
 
 # FernWay_Attempt_1
 first attempt

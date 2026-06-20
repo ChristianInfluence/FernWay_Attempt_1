@@ -4,12 +4,13 @@
   - Caches a few core assets at install and serves cached responses when available
 */
 
-const CACHE_NAME = 'fernway-v8'; // versioned cache name for easy updates
+const CACHE_NAME = 'fernway-v9'; // versioned cache name for easy updates
 const ASSETS_TO_CACHE = [
   '/',           // root HTML
   '/index.html', // main page
   '/styles.css', // CSS
-  '/app.js'      // application script
+  '/app.js',     // application script
+  '/FernWay.mp4' // loading animation
 ];
 
 // Install event: populate the cache with core assets

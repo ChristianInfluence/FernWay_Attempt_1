@@ -5,6 +5,9 @@
   let locationWatchId = null;
   let latestUserPosition = null;
   let hasCenteredOnUser = false;
+  const loadingStartedAt = Date.now();
+  const minimumLoadingTime = 1600;
+  let loadingHideTimer = null;
 
   function initializeMap(){
     map = new maplibregl.Map({
@@ -61,7 +64,19 @@
 
   function hideLoading(){
     const loading = document.getElementById('loadingOverlay');
-    if(loading) loading.style.display = 'none';
+    if(!loading || loading.classList.contains('isHidden') || loadingHideTimer) return;
+
+    const remainingTime = Math.max(
+      0,
+      minimumLoadingTime - (Date.now() - loadingStartedAt)
+    );
+
+    loadingHideTimer = window.setTimeout(() => {
+      loading.classList.add('isHidden');
+      window.setTimeout(() => {
+        loading.style.display = 'none';
+      }, 450);
+    }, remainingTime);
   }
 
   function showMenu(){

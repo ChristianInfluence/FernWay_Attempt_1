@@ -151,6 +151,14 @@ button, a { font: inherit; }
 	background:
 		radial-gradient(circle at 50% 45%, rgba(57, 119, 82, 0.25), transparent 35%),
 		#09100c;
+	opacity: 1;
+	transition: opacity 420ms ease, visibility 420ms ease;
+}
+
+#loadingOverlay.isHidden {
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
 }
 
 #loadingVideo {
@@ -159,28 +167,7 @@ button, a { font: inherit; }
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	opacity: 0.22;
-}
-
-.loadingContent {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 16px;
-	color: #dce5df;
-	font-size: 13px;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-
-.loadingContent .brandMark {
-	width: 58px;
-	height: 58px;
-	border-radius: 18px;
-	font-size: 34px;
-	animation: loadingFloat 1.8s ease-in-out infinite;
+	opacity: 1;
 }
 
 #menuOverlay {
@@ -377,11 +364,6 @@ button, a { font: inherit; }
 @keyframes statusPulse {
 	0% { box-shadow: 0 0 0 0 rgba(116, 214, 160, 0.35); }
 	70%, 100% { box-shadow: 0 0 0 7px rgba(116, 214, 160, 0); }
-}
-
-@keyframes loadingFloat {
-	0%, 100% { transform: translateY(0); }
-	50% { transform: translateY(-5px); }
 }
 
 @media (max-width: 640px) {
