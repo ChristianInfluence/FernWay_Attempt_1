@@ -8,6 +8,7 @@ Files added:
 - `index.html` — main page and MapLibre library setup.
 - `styles.css` — basic styles for map, loading, and menu overlays.
 - `app.js` — initialization, map callback, overlay toggles.
+- `assets/fernway-logo.png` — optimized FernWay brand artwork.
 - `manifest.json` — PWA manifest for installability.
 - `service-worker.js` — simple cache-first service worker.
 
