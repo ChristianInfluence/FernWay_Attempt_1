@@ -396,13 +396,49 @@ button, a { font: inherit; }
 }
 
 .primaryRadialButton svg {
-	width: 66px;
-	height: 66px;
+	width: 72px;
+	height: 72px;
 	fill: none;
 	stroke: #edfff5;
-	stroke-width: 2;
+	stroke-width: 1.65;
 	stroke-linecap: round;
 	stroke-linejoin: round;
+}
+
+.vitruvianIcon .vitruvianCircle {
+	fill: rgba(188, 244, 214, 0.04);
+	stroke: rgba(220, 255, 236, 0.8);
+	stroke-width: 1.4;
+}
+
+.vitruvianIcon .vitruvianSquare {
+	fill: none;
+	stroke: rgba(156, 227, 189, 0.48);
+	stroke-width: 1;
+}
+
+.vitruvianIcon .vitruvianHead {
+	fill: rgba(237, 255, 245, 0.2);
+	stroke-width: 1.7;
+}
+
+.vitruvianIcon .vitruvianBody {
+	stroke-width: 2.2;
+}
+
+.vitruvianIcon .vitruvianEcho {
+	stroke: rgba(237, 255, 245, 0.72);
+	stroke-width: 1.65;
+}
+
+.vitruvianIcon .vitruvianJoint {
+	fill: #edfff5;
+	stroke: none;
+}
+
+.vitruvianIcon .vitruvianGround {
+	stroke: rgba(156, 227, 189, 0.56);
+	stroke-width: 1;
 }
 
 .modeButton {
@@ -602,6 +638,38 @@ button, a { font: inherit; }
 .achievementButton .iconDetail {
 	fill: color-mix(in srgb, var(--accent) 32%, transparent);
 	stroke-width: 1.8;
+}
+
+.woodenMalletIcon .malletHead {
+	fill: #b56f32;
+	stroke: #ffd08a;
+}
+
+.woodenMalletIcon .malletEnd {
+	fill: #73401f;
+	stroke: #d8924e;
+}
+
+.woodenMalletIcon .malletHandle {
+	fill: #8f5429;
+	stroke: #f5b85c;
+}
+
+.woodenMalletIcon .malletWedge {
+	fill: #5e351d;
+	stroke: #d8924e;
+}
+
+.woodenMalletIcon .malletGrain {
+	fill: none;
+	stroke: rgba(255, 222, 163, 0.72);
+	stroke-width: 1.2;
+}
+
+.woodenMalletIcon .malletKnot {
+	fill: rgba(89, 45, 23, 0.72);
+	stroke: #e8a55f;
+	stroke-width: 1;
 }
 
 .achievementLabel {
@@ -825,8 +893,8 @@ button, a { font: inherit; }
 	}
 
 	.primaryRadialButton svg {
-		width: 50px;
-		height: 50px;
+		width: 56px;
+		height: 56px;
 	}
 
 	.primaryRadialButton.isDocked {
