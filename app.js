@@ -1,111 +1,63 @@
 (function(){
-  /*
-    app.js
-    - Initializes Google Maps via the global `initMap` callback required by the Maps JS API
-    - Manages the loading video overlay and the main menu overlay
-    - Provides a simple toggleable sample overlay (marker) to demonstrate overlay controls
-  */
-  // `map` will hold the Google Maps instance once initialized
-  let map;
-  // `sampleMarker` is a simple overlay (marker) we can add/remove for demo purposes
-  let sampleMarker = null;
-
-  // Expose `initMap` globally because the Maps API calls it by name when ready
-  window.initMap = function(AIzaSyDxtfioPPtWP628QaMnNiExEpAo2x1EqOM){
-    // Default center coordinates (Portland, OR) for the initial map view
-    const center = {lat: 47, lng: -122.4194};
-
-    // Create the map inside the `#map` element
-    map = new google.maps.Map(document.getElementById('map'), {
-      center,        // starting center
-      zoom: 12,      // starting zoom level
-      mapTypeId: 'roadmap' // map style
-    });
-
-    // Once map tiles are loaded we can hide the loading screen and show the main menu
-    map.addListener('tilesloaded', () => {
-      hideLoading();
-      showMenu();
-    });
-  };
-
-  // Hide the fullscreen loading overlay by setting display to 'none'
-  function hideLoading(){
-    const loading = document.getElementById('loadingOverlay');
-    if(loading) loading.style.display = 'none';
-  }
-
-  // Show the main menu overlay by setting display to 'flex'
-  function showMenu(){
-    const menu = document.getElementById('menuOverlay');
-    if(menu) menu.style.display = 'flex';
-  }
-
-  // Toggle a sample marker overlay at the map center; removes it if present
-  function toggleSampleOverlay(){
-    if(!map) return; // guard if map isn't ready yet
-    if(sampleMarker){
-      // Remove existing marker from the map
-      sampleMarker.setMap(null);
-      sampleMarker = null;
-    } else {
-      // Create a new marker at the current center of the map
-      sampleMarker = new google.maps.Marker({
-        position: map.getCenter(),
-        map,
-        title: 'Sample Overlay'
-      });
-    }
-  }
-
-  // Wire up UI interactions after DOM is ready
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const toggleBtn = document.getElementById('toggleOverlayBtn');
-    const closeBtn = document.getElementById('closeMenuBtn');
-    const menu = document.getElementById('menuOverlay');
-
-    // Attach click handlers if buttons exist
-    if(toggleBtn) toggleBtn.addEventListener('click', toggleSampleOverlay);
-    if(closeBtn) closeBtn.addEventListener('click', ()=>{ if(menu) menu.style.display='none' });
-
-    // Try to play the loading video; many browsers allow muted autoplay
-    const vid = document.getElementById('loadingVideo');
-    if(vid){
-      vid.play().catch(()=>{
-        // If autoplay is blocked, ignore — the video is muted and will usually play
-      });
-    }
-  });
-
-  // Register service worker for basic offline caching if supported
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', ()=>{
-      navigator.serviceWorker.register('/service-worker.js').catch(()=>{
-        // Registration failed — we ignore here, but in production log/report error
-      });
-    });
-  }
-
-})();
-(function(){
   let map;
   let sampleMarker = null;
+  let userMarker = null;
+  let locationWatchId = null;
+  let latestUserPosition = null;
+  let hasCenteredOnUser = false;
 
-  // Expose initMap globally for the Google Maps callback
-  window.initMap = function(){
-    const center = {lat: 37.7749, lng: -122.4194};
-    map = new google.maps.Map(document.getElementById('map'), {
-      center,
+  function initializeMap(){
+    map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/liberty',
+      center: [-122.4194, 37.7749],
       zoom: 12,
-      mapTypeId: 'roadmap'
+      attributionControl: true
     });
 
-    // When tiles loaded, hide loading overlay and show menu
-    map.addListener('tilesloaded', () => {
+    map.addControl(
+      new maplibregl.NavigationControl({ showCompass: false }),
+      'bottom-right'
+    );
+
+    map.once('load', () => {
+      map.addSource('location-accuracy', {
+        type: 'geojson',
+        data: emptyFeatureCollection()
+      });
+
+      map.addLayer({
+        id: 'location-accuracy-fill',
+        type: 'fill',
+        source: 'location-accuracy',
+        paint: {
+          'fill-color': '#3f9361',
+          'fill-opacity': 0.14
+        }
+      });
+
+      map.addLayer({
+        id: 'location-accuracy-line',
+        type: 'line',
+        source: 'location-accuracy',
+        paint: {
+          'line-color': '#2f7d50',
+          'line-width': 1.5,
+          'line-opacity': 0.65
+        }
+      });
+
       hideLoading();
       showMenu();
     });
-  };
+
+    window.setTimeout(() => {
+      hideLoading();
+      showMenu();
+    }, 4000);
+
+    startLocationTracking();
+  }
 
   function hideLoading(){
     const loading = document.getElementById('loadingOverlay');
@@ -114,36 +66,175 @@
 
   function showMenu(){
     const menu = document.getElementById('menuOverlay');
-    if(menu) menu.style.display = 'flex';
+    if(menu) menu.classList.add('isVisible');
   }
 
   function toggleSampleOverlay(){
     if(!map) return;
     if(sampleMarker){
-      sampleMarker.setMap(null);
+      sampleMarker.remove();
       sampleMarker = null;
     } else {
-      sampleMarker = new google.maps.Marker({
-        position: map.getCenter(),
-        map,
-        title: 'Sample Overlay'
-      });
+      const markerElement = document.createElement('div');
+      markerElement.className = 'savedMarker';
+      markerElement.setAttribute('aria-label', 'Saved marker');
+
+      sampleMarker = new maplibregl.Marker({ element: markerElement })
+        .setLngLat(map.getCenter())
+        .setPopup(new maplibregl.Popup({ offset: 18 }).setText('Saved marker'))
+        .addTo(map);
     }
   }
 
-  // Wire UI buttons
+  function setLocationStatus(message, isError = false){
+    const status = document.getElementById('locationStatus');
+    if(!status) return;
+
+    const statusText = status.querySelector('.statusText');
+    if(statusText) statusText.textContent = message;
+    status.classList.toggle('locationError', isError);
+  }
+
+  function updateUserLocation(position){
+    const { latitude, longitude, accuracy } = position.coords;
+    const lngLat = [longitude, latitude];
+
+    latestUserPosition = lngLat;
+
+    if(!userMarker){
+      const markerElement = document.createElement('div');
+      markerElement.className = 'userLocationIcon';
+      markerElement.innerHTML = '<span class="locationPulse"></span><span class="locationCore"></span>';
+      markerElement.setAttribute('aria-label', 'Your location');
+
+      userMarker = new maplibregl.Marker({
+        element: markerElement,
+        anchor: 'center'
+      })
+        .setLngLat(lngLat)
+        .setPopup(new maplibregl.Popup({ offset: 18 }).setText('Your location'))
+        .addTo(map);
+    } else {
+      userMarker.setLngLat(lngLat);
+    }
+
+    updateAccuracyCircle(longitude, latitude, accuracy);
+
+    if(!hasCenteredOnUser){
+      map.easeTo({
+        center: lngLat,
+        zoom: Math.max(map.getZoom(), 16),
+        duration: 900
+      });
+      hasCenteredOnUser = true;
+    }
+
+    setLocationStatus(`Location active · ±${Math.round(accuracy)} m`);
+  }
+
+  function handleLocationError(error){
+    const messages = {
+      1: 'Location permission was denied. Enable it in your browser settings.',
+      2: 'Your location is currently unavailable.',
+      3: 'Finding your location timed out. Try again.'
+    };
+
+    setLocationStatus(messages[error.code] || 'Unable to access your location.', true);
+  }
+
+  function startLocationTracking(){
+    if(!navigator.geolocation){
+      setLocationStatus('This browser does not support location tracking.', true);
+      return;
+    }
+
+    if(locationWatchId !== null){
+      navigator.geolocation.clearWatch(locationWatchId);
+    }
+
+    setLocationStatus('Requesting your location…');
+    locationWatchId = navigator.geolocation.watchPosition(
+      updateUserLocation,
+      handleLocationError,
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000
+      }
+    );
+  }
+
+  function centerOnUserLocation(){
+    if(latestUserPosition){
+      map.easeTo({
+        center: latestUserPosition,
+        zoom: Math.max(map.getZoom(), 16),
+        duration: 700
+      });
+      return;
+    }
+
+    startLocationTracking();
+  }
+
+  function emptyFeatureCollection(){
+    return {
+      type: 'FeatureCollection',
+      features: []
+    };
+  }
+
+  function updateAccuracyCircle(longitude, latitude, radiusMeters){
+    const source = map.getSource('location-accuracy');
+    if(!source) return;
+
+    const earthRadius = 6371008.8;
+    const latitudeRadians = latitude * Math.PI / 180;
+    const coordinates = [];
+    const steps = 64;
+
+    for(let step = 0; step <= steps; step += 1){
+      const bearing = (step / steps) * Math.PI * 2;
+      const north = Math.cos(bearing) * radiusMeters;
+      const east = Math.sin(bearing) * radiusMeters;
+      const pointLatitude = latitude + (north / earthRadius) * (180 / Math.PI);
+      const pointLongitude = longitude
+        + (east / (earthRadius * Math.cos(latitudeRadians))) * (180 / Math.PI);
+      coordinates.push([pointLongitude, pointLatitude]);
+    }
+
+    source.setData({
+      type: 'Feature',
+      geometry: {
+        type: 'Polygon',
+        coordinates: [coordinates]
+      },
+      properties: {}
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', ()=>{
     const toggleBtn = document.getElementById('toggleOverlayBtn');
+    const centerLocationBtn = document.getElementById('centerLocationBtn');
     const closeBtn = document.getElementById('closeMenuBtn');
     const menu = document.getElementById('menuOverlay');
 
     if(toggleBtn) toggleBtn.addEventListener('click', toggleSampleOverlay);
-    if(closeBtn) closeBtn.addEventListener('click', ()=>{ if(menu) menu.style.display='none' });
+    if(centerLocationBtn) centerLocationBtn.addEventListener('click', centerOnUserLocation);
+    if(closeBtn) closeBtn.addEventListener('click', ()=>{ if(menu) menu.classList.remove('isVisible') });
 
     // Ensure video plays (some browsers require user interaction unless muted)
     const vid = document.getElementById('loadingVideo');
     if(vid){
       vid.play().catch(()=>{/* ignore autoplay block; video is muted so should play */});
+    }
+
+    initializeMap();
+  });
+
+  window.addEventListener('pagehide', ()=>{
+    if(locationWatchId !== null && navigator.geolocation){
+      navigator.geolocation.clearWatch(locationWatchId);
     }
   });
 

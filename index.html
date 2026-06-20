@@ -12,43 +12,62 @@
     <link rel="manifest" href="/manifest.json" />
     <!-- Link to the app stylesheet -->
     <link rel="stylesheet" href="/styles.css" />
+    <!-- MapLibre renders a seamless vector map in a WebGL canvas. -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css"
+    />
+    <script
+      src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"
+    ></script>
     <!-- Main application JavaScript (deferred until parsing completes) -->
     <script src="/app.js" defer></script>
-    <!-- Google Maps JS: replace YOUR_API_KEY with your API key; callback=initMap -->
-    <script async defer
-      src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&v=weekly">
-    </script>
   </head>
   <body>
-    <!-- Loading overlay: covers screen while the app initializes -->
     <div id="loadingOverlay">
-      <!-- Looping MP4 shown during loading; muted so autoplay works on many browsers -->
       <video id="loadingVideo" autoplay muted loop playsinline>
-        <!-- Source for the loading video; place your file at /assets/video.mp4 -->
         <source src="/assets/video.mp4" type="video/mp4">
-        <!-- Fallback text if video tag isn't supported -->
-        Your browser does not support the video tag.
       </video>
-    </div>
-
-    <!-- Map container: Google Maps will render into this element -->
-    <div id="map"></div>
-
-    <!-- Main menu overlay sits above the map; visually semi-opaque via CSS -->
-    <div id="menuOverlay">
-      <div class="menuContent">
-        <!-- App title inside the menu -->
-        <h1>Welcome to FernWay</h1>
-        <!-- Short description / instruction -->
-        <p>Main menu — 50% opaque over the map.</p>
-        <!-- Button to toggle a sample overlay (wired in app.js) -->
-        <button id="toggleOverlayBtn">Toggle Sample Overlay</button>
-        <!-- Button to close the main menu (wired in app.js) -->
-        <button id="closeMenuBtn">Close Menu</button>
+      <div class="loadingContent">
+        <div class="brandMark" aria-hidden="true">F</div>
+        <span>Finding your way…</span>
       </div>
     </div>
 
-    <!-- If JavaScript is disabled, show a full-page notice -->
+    <div id="map"></div>
+
+    <header class="appHeader">
+      <a class="brand" href="/" aria-label="FernWay home">
+        <span class="brandMark" aria-hidden="true">F</span>
+        <span>
+          <strong>FernWay</strong>
+          <small>Explore what’s around you</small>
+        </span>
+      </a>
+    </header>
+
+    <div id="locationStatus" role="status" aria-live="polite">
+      <span class="statusDot" aria-hidden="true"></span>
+      <span class="statusText">Requesting your location…</span>
+    </div>
+
+    <div id="menuOverlay">
+      <div class="menuContent">
+        <button id="closeMenuBtn" class="iconButton closeButton" type="button" aria-label="Close welcome panel">×</button>
+        <p class="eyebrow">Welcome to FernWay</p>
+        <h1>Your world,<br><span>one path away.</span></h1>
+        <p class="menuIntro">See where you are, discover what’s nearby, and keep your bearings while you move.</p>
+        <div class="menuActions">
+          <button id="centerLocationBtn" class="primaryButton" type="button">
+            <span class="buttonIcon" aria-hidden="true">◎</span>
+            Center on my location
+          </button>
+          <button id="toggleOverlayBtn" class="secondaryButton" type="button">Drop a map marker</button>
+        </div>
+        <p class="privacyNote">Your location stays in this browser session.</p>
+      </div>
+    </div>
+
     <noscript>
       <div class="noscript">JavaScript is required to run this app.</div>
     </noscript>

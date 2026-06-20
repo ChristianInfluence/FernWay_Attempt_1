@@ -4,7 +4,7 @@
   - Caches a few core assets at install and serves cached responses when available
 */
 
-const CACHE_NAME = 'fernway-v1'; // versioned cache name for easy updates
+const CACHE_NAME = 'fernway-v8'; // versioned cache name for easy updates
 const ASSETS_TO_CACHE = [
   '/',           // root HTML
   '/index.html', // main page
@@ -23,7 +23,15 @@ self.addEventListener('install', (e)=>{
 
 // Activate event: take control of uncontrolled clients
 self.addEventListener('activate', (e)=>{
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      ))
+      .then(() => self.clients.claim())
+  );
 });
 
 // Fetch handler: respond from cache if possible, otherwise fall back to network
