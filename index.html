@@ -24,13 +24,21 @@
     <script src="/app.js" defer></script>
   </head>
   <body>
-    <div id="loadingOverlay">
+    <div id="loadingOverlay" role="button" tabindex="0" aria-label="Skip intro animation">
       <video id="loadingVideo" autoplay muted playsinline preload="auto">
         <source src="/FernWay.mp4" type="video/mp4">
       </video>
+      <span class="skipIntro">Click anywhere to skip</span>
     </div>
 
     <div id="map"></div>
+
+    <button id="mapLocationBtn" class="mapLocationButton" type="button" aria-label="Center map on my location" title="Center on my location">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path>
+      </svg>
+    </button>
 
     <header class="appHeader">
       <a class="brand" href="/" aria-label="FernWay home">

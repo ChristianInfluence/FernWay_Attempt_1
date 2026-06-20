@@ -72,6 +72,15 @@
     finishLoadingWhenReady();
   }
 
+  function skipLoading(){
+    videoNearEnd = true;
+
+    const video = document.getElementById('loadingVideo');
+    if(video) video.pause();
+
+    finishLoadingWhenReady();
+  }
+
   function finishLoadingWhenReady(){
     const loading = document.getElementById('loadingOverlay');
     if(!loading || !appReady || !videoNearEnd || loadingFadeStarted) return;
@@ -235,12 +244,24 @@
   document.addEventListener('DOMContentLoaded', ()=>{
     const toggleBtn = document.getElementById('toggleOverlayBtn');
     const centerLocationBtn = document.getElementById('centerLocationBtn');
+    const mapLocationBtn = document.getElementById('mapLocationBtn');
     const closeBtn = document.getElementById('closeMenuBtn');
     const menu = document.getElementById('menuOverlay');
+    const loading = document.getElementById('loadingOverlay');
 
     if(toggleBtn) toggleBtn.addEventListener('click', toggleSampleOverlay);
     if(centerLocationBtn) centerLocationBtn.addEventListener('click', centerOnUserLocation);
+    if(mapLocationBtn) mapLocationBtn.addEventListener('click', centerOnUserLocation);
     if(closeBtn) closeBtn.addEventListener('click', ()=>{ if(menu) menu.classList.remove('isVisible') });
+    if(loading){
+      loading.addEventListener('click', skipLoading);
+      loading.addEventListener('keydown', (event)=>{
+        if(event.key === 'Enter' || event.key === ' '){
+          event.preventDefault();
+          skipLoading();
+        }
+      });
+    }
 
     // Ensure video plays (some browsers require user interaction unless muted)
     const vid = document.getElementById('loadingVideo');
