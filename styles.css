@@ -454,11 +454,11 @@ button, a { font: inherit; }
 	height: var(--satellite-radius);
 	background: linear-gradient(
 		to bottom,
-		rgba(190, 198, 255, 0.44),
-		rgba(190, 198, 255, 0.18) 78%,
-		rgba(190, 198, 255, 0.04)
+		color-mix(in srgb, var(--accent) 62%, transparent),
+		color-mix(in srgb, var(--accent) 24%, transparent) 78%,
+		transparent
 	);
-	box-shadow: 0 0 8px rgba(132, 143, 230, 0.14);
+	box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 22%, transparent);
 	transform: rotate(var(--angle));
 	transform-origin: 50% 100%;
 	pointer-events: none;
@@ -472,22 +472,96 @@ button, a { font: inherit; }
 		rotate(calc(0deg - var(--angle)));
 }
 
+.achievementButton {
+	overflow: visible;
+	border-color: color-mix(in srgb, var(--accent) 58%, rgba(255, 255, 255, 0.2));
+	background:
+		radial-gradient(
+			circle at 34% 27%,
+			color-mix(in srgb, var(--accent) 32%, rgba(53, 58, 128, 0.96)),
+			rgba(14, 17, 53, 0.98) 72%
+		);
+	color: var(--accent);
+	box-shadow:
+		0 14px 34px rgba(8, 8, 31, 0.5),
+		0 0 0 5px color-mix(in srgb, var(--accent) 9%, transparent),
+		inset 0 1px rgba(255, 255, 255, 0.16);
+}
+
+.achievementButton:hover,
+.achievementButton:focus-visible {
+	border-color: color-mix(in srgb, var(--accent) 88%, white);
+	background:
+		radial-gradient(
+			circle at 34% 27%,
+			color-mix(in srgb, var(--accent) 48%, rgba(53, 58, 128, 0.98)),
+			rgba(14, 17, 53, 0.99) 74%
+		);
+	box-shadow:
+		0 16px 38px rgba(8, 8, 31, 0.56),
+		0 0 0 7px color-mix(in srgb, var(--accent) 15%, transparent),
+		0 0 28px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.achievementButton svg {
+	width: 47px;
+	height: 47px;
+	overflow: visible;
+	fill: color-mix(in srgb, var(--accent) 12%, transparent);
+	stroke: currentColor;
+	stroke-width: 2.35;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.44));
+}
+
+.achievementButton .iconDetail {
+	fill: color-mix(in srgb, var(--accent) 32%, transparent);
+	stroke-width: 1.8;
+}
+
+.achievementLabel {
+	position: absolute;
+	top: calc(100% + 7px);
+	left: 50%;
+	padding: 3px 7px;
+	border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+	border-radius: 999px;
+	background: rgba(10, 11, 42, 0.78);
+	color: color-mix(in srgb, var(--accent) 78%, white);
+	font-family: ui-sans-serif, system-ui, sans-serif;
+	font-size: 8px;
+	font-weight: 800;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	white-space: nowrap;
+	transform: translateX(-50%);
+	backdrop-filter: blur(8px);
+}
+
 .satelliteButton {
 	z-index: 3;
 	width: var(--satellite-size);
 	height: var(--satellite-size);
-	border-color: rgba(219, 224, 255, 0.44);
-	background: linear-gradient(145deg, rgba(73, 78, 150, 0.98), rgba(24, 25, 73, 0.98));
+	border-color: color-mix(in srgb, var(--accent) 68%, rgba(255, 255, 255, 0.2));
+	background:
+		radial-gradient(
+			circle at 35% 30%,
+			color-mix(in srgb, var(--accent) 44%, rgba(75, 80, 153, 0.98)),
+			rgba(22, 24, 68, 0.99) 72%
+		);
+	color: color-mix(in srgb, var(--accent) 82%, white);
 	font-family: ui-sans-serif, system-ui, sans-serif;
 	font-size: 11px;
 	box-shadow:
 		0 8px 20px rgba(8, 8, 31, 0.44),
-		0 0 0 4px rgba(135, 145, 231, 0.08);
+		0 0 0 4px color-mix(in srgb, var(--accent) 13%, transparent),
+		0 0 14px color-mix(in srgb, var(--accent) 18%, transparent);
 	transform:
 		translate(-50%, -50%)
-		rotate(var(--angle))
+		rotate(var(--sat-angle, var(--angle)))
 		translateY(calc(var(--satellite-radius) * -1))
-		rotate(calc(0deg - var(--angle)));
+		rotate(calc(0deg - var(--sat-angle, var(--angle))));
 }
 
 .radialLabel {
@@ -669,6 +743,15 @@ button, a { font: inherit; }
 	}
 
 	.utilityButton { font-size: 19px; }
+	.achievementButton svg {
+		width: 34px;
+		height: 34px;
+	}
+	.achievementLabel {
+		top: calc(100% + 4px);
+		padding: 2px 5px;
+		font-size: 6px;
+	}
 	.satelliteButton { font-size: 9px; }
 	.radialLabel { top: calc(100% + 5px); font-size: 8px; }
 	.radialMessage {
